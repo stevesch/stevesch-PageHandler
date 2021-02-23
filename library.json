@@ -1,0 +1,27 @@
+{
+  "name": "stevesch-PageHandler",
+  "keywords": "html, reflection",
+  "description": "Server with data reflection for Arduino and embedded applications",
+  "repository":
+  {
+    "type": "git",
+    "url": ""
+  },
+  "exclude": "tests",
+  "frameworks": "arduino",
+  "platforms": "*",
+  "authors":
+  {
+    "name": "Stephen Schlueter",
+    "url": "",
+    "maintainer": true
+  },
+  "dependencies": [
+    {
+        "name": "ESPAsyncWebServer"
+    },
+    {
+        "name": "SPIFFS"
+    }
+  ]
+}
