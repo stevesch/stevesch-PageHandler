@@ -4,6 +4,8 @@ Provides automatic reflection of variables between an ESP32 microcontroller web 
 
 The library example uses stevesch-WiFiConnector for simple wifi setup (with config portal), but other wifi intialization may be used as long as an AsyncEspWebServer object is provided to this library's setup routine.
 
+The example sketch serves a dynamic web page that has examples for cards that communicate variables to and from the ESP32 server, as well as real-time graphing capability:
+
 ![Example Screencap](examples/minimal/example-minimal-screencap.jpg)
 
 # Building and Running
