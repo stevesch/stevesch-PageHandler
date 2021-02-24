@@ -2,7 +2,7 @@
 // Just include this script in your HTML page and trigger
 // the following 2 lines as an inline script from that page:
 // var reflections = [ %REFL_LIST% ];
-// function initPageServer(reflections)
+// function initPageHandler(reflections)
 
 var serverSource;
 if (!!window.EventSource) {
@@ -307,7 +307,7 @@ function attachChart(el, varName) {
 // This is for standard replacement of text fields within the HTML:
 // (contents is dynamically populated upon send of index from server)
 // var reflections = [ %REFL_LIST% ];
-function initPageServer(reflections) {
+function initPageHandler(reflections) {
   if (serverSource) {
     // serverSource.addEventListener('open', function(e) {
     //   quietIntervals = 0;

@@ -40,7 +40,9 @@ void setup()
   stevesch::PageHandler::registerProcessor("HOSTNAME", processHostName);
   stevesch::PageHandler::registerProcessor("DATETIME", processDateTime);
 
-  stevesch::WiFiConnector::setup(&server, "PageHandler-Test");
+  // ESP_NAME and ESP_AUTH are defined in platformio.ini for this example
+  stevesch::WiFiConnector::setup(&server, ESP_NAME, ESP_AUTH);
+
   stevesch::PageHandler::setup(server);
   server.begin();
 

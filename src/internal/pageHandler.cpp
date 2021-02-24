@@ -1,4 +1,4 @@
-#include "pageServer.h"
+#include "pageHandler.h"
 #include "reloader.h"
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
@@ -57,7 +57,7 @@ namespace {
 
   void handleJs(AsyncWebServerRequest *request)
   {
-    request->send(SPIFFS, "/pageServer.js", "text/javascript");
+    request->send(SPIFFS, "/pageHandler.js", "text/javascript");
   }
 
   void handleIndex(AsyncWebServerRequest *request)
@@ -185,7 +185,7 @@ namespace PageHandler {
     // serve index page, css, js, etc.
     server.on("/", HTTP_GET, handleIndex);
     server.on("/style.css", HTTP_GET, handleCss);
-    server.on("/pageServer.js", HTTP_GET, handleJs);
+    server.on("/pageHandler.js", HTTP_GET, handleJs);
     server.onNotFound(handlePageNotFound);
 
     // handle client connection for server-side events

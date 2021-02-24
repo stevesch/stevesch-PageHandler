@@ -15,6 +15,7 @@ To get up-and-running:
 - Build this library (builds its own minimal example)
 - Upload to any ESP32 board
 - Choose "Upload and Monitor" to perform all steps at once (build, upload, then monitor) or choose individually if you're having issues and wish to examine the error output of a particular stage more easily.
+- Choose "Upload Filesystem Image" to upload the required data files to the SPIFFS file system on the ESP32.  (This uploads the HTML, CSS, and javscript files required for serving the web pages the the clients).
 
 ![Example Screencap](examples/minimal/example-minimal-build.jpg)
 
@@ -37,7 +38,7 @@ where x.x/x.x.x matches the address displayed in the serial output from your boa
 
 The "index.html" and "style.css" pages in the examples/minimal/data folder can be used as a starting point for your own page.  Customize the contents of these to suit your purposes.
 
-The "pageServer.js" file in the data folder should be copied as-is (without modification) to your data folder (along with your index.html and style.css, or whatever page files you require).  This javascript file provides the standard hookup and data reflection required by the server.  Your HTML file should include the script and call "initPageServer" upon load, just as in the example index.html.
+The "pageHandler.js" file in the data folder should be copied as-is (without modification) to your data folder (along with your index.html and style.css, or whatever page files you require).  This javascript file provides the standard hookup and data reflection required by the server.  Your HTML file should include the script and call "initPageHandler" upon load, just as in the example index.html.
 
 ```
 <!DOCTYPE HTML>
@@ -48,17 +49,21 @@ The "pageServer.js" file in the data folder should be copied as-is (without modi
 </head>
 <body>
   . . .
-  <script src="/pageServer.js" type="text/javascript">
+  <script src="/pageHandler.js" type="text/javascript">
   </script>
   <script>
     var reflections = [ %REFL_LIST% ];
-    function initPageServer(reflections)
+    function initPageHandler(reflections)
   </script>
   . . .
 </body></html>
 ```
 
 Thie script will replace statically specified variables with the server values, send variable changes from controls to the server, and hook up server-side event listeners to update displays in real time when variables are received from the server.
+
+Remember to "Upload Filesystem Image" whenever you change the HTML, CSS, or JavaScript files in your data folder.
+
+# Customization details
 
 Client side variables (i.e. those displayed in your HTML) are specified, for example, like this:
 ```

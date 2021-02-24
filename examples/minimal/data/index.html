@@ -87,13 +87,13 @@
     </div>
   </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
-<script src="/pageServer.js" type="text/javascript"></script>
+<script src="/pageHandler.js" type="text/javascript"></script>
 <script>
   // register processor reflections, e.g. TEMPERATURE, HUMIDITY, FLOATVALUE1, etc.
   // This is for standard replacement of text fields within the HTML:
   // (contents is dynamically populated upon send of index from server)
   var reflections = [ %REFL_LIST% ];
-  initPageServer(reflections);
+  initPageHandler(reflections);
 </script>
 </body>
 </html>

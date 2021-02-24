@@ -1,15 +1,15 @@
-#ifndef STEVESCH_PAGEHANDLER_INTERNAL_PAGESERVER_H_
-#define STEVESCH_PAGEHANDLER_INTERNAL_PAGESERVER_H_
+#ifndef STEVESCH_PAGEHANDLER_INTERNAL_PAGEHANDLER_H_
+#define STEVESCH_PAGEHANDLER_INTERNAL_PAGEHANDLER_H_
 #include <Arduino.h>
 #include <functional>
 
 // An HTML page should reference this script and execute the following (or equivalent) script:
 // <script>
 //   var reflections = [ %REFL_LIST% ];
-//   initPageServer(reflections);
+//   initPageHandler(reflections);
 // </script>
 //
-// %REFL_LIST% is filled in by the pageServer C++ code.  The JS code registers
+// %REFL_LIST% is filled in by the pageHandler C++ code.  The JS code registers
 // for events by those names, as well as any additional variables specified
 // only in the javascript code.
 // On the C++ side, VarReflector instances will automatically be communicated
