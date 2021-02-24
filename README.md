@@ -20,6 +20,6 @@ To get up-and-running:
 
 (otherwise you'll need to open, e.g.
 
-"http://192.168.0.nnn"
+"http://192.168.x.x" or "http://10.x.x.x"
 
-where nnn matches the address displayed in the serial output from your board).
+where x.x/x.x.x matches the address displayed in the serial output from your board).
