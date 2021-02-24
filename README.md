@@ -1,6 +1,6 @@
 # stevesch-PageHandler
 
-Provides automatic reflection of variables between an ESP32 microcontroller web server and the web clients displaying the HTML pages of that server.
+This library provides automatic reflection of variables between an ESP32 microcontroller web server and the web clients displaying the HTML pages of that server.  The library is designed to have minimal setup and be easy to customize to suit your needs.
 
 The library example uses stevesch-WiFiConnector for simple wifi setup (with config portal), but other wifi intialization may be used as long as an AsyncEspWebServer object is provided to this library's setup routine.
 
