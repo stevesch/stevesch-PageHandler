@@ -32,3 +32,59 @@ To get up-and-running:
 "http://192.168.x.x" or "http://10.x.x.x"
 
 where x.x/x.x.x matches the address displayed in the serial output from your board).
+
+# Customizing for your own web page
+
+The "index.html" and "style.css" pages in the examples/minimal/data folder can be used as a starting point for your own page.  Customize the contents of these to suit your purposes.
+
+The "pageServer.js" file in the data folder should be copied as-is (without modification) to your data folder (along with your index.html and style.css, or whatever page files you require).  This javascript file provides the standard hookup and data reflection required by the server.  Your HTML file should include the script and call "initPageServer" upon load, just as in the example index.html.
+
+```
+<!DOCTYPE HTML>
+<html>
+  . . .
+<head>
+  . . .
+</head>
+<body>
+  . . .
+  <script src="/pageServer.js" type="text/javascript">
+  </script>
+  <script>
+    var reflections = [ %REFL_LIST% ];
+    function initPageServer(reflections)
+  </script>
+  . . .
+</body></html>
+```
+
+Thie script will replace statically specified variables with the server values, send variable changes from controls to the server, and hook up server-side event listeners to update displays in real time when variables are received from the server.
+
+Client side variables (i.e. those displayed in your HTML) are specified, for example, like this:
+```
+<span data-varinner="INTVALUE1">%INTVALUE1%</span>
+```
+and correspond to a server-side variable (in code on your ESP32) like this:
+
+```
+VarReflector<int> vrIntValue1("INTVALUE1", 17);
+
+void loop() {
+  int x = vrIntvalue1;
+  // . . . do something with x
+  vrIntValue1 = x;
+
+  stevesch::PageHandler::processAndSendUpdatedServerValues();
+}
+```
+
+In this example case, the web page would display the initial value (17) in place of %INTVALUE1%.
+
+The inner text of the span will be replaced whenever the server-side variable, vrIntValue1, changes.
+
+The following is an example of a control (in this case, a slider) that sends values back to the server:
+```
+<input type="range" min="0" max="255" class="watcher" value="%INTVALUE1%" data-varname="INTVALUE1" onchange="sendValueChange(event)"/>
+```
+
+The "watcher" class specification additionally says that this control will respond to changes sent _from_ the server.
