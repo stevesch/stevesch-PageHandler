@@ -17,7 +17,9 @@ To get up-and-running:
 - Connect to your router's WiFi network and open the ESP32 page in any browser.  The IP of the device will be displayed in the serial output if you're monitoring serial output of the board.  If your router supports mDNS, you should be able to open
 
 "http://PageHandler-Test.local/"
+
 (otherwise you'll need to open, e.g.
 
 "http://192.168.0.nnn"
+
 where nnn matches the address displayed in the serial output from your board).
