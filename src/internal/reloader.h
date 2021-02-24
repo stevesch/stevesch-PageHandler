@@ -3,6 +3,9 @@
 
 #include <pgmspace.h>   // for PROGMEM
 
+namespace stevesch {
+namespace PageHandler {
+
 // HTML web page to handle 3 input fields (input1, input2, input3)
 const char kReloader[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
@@ -26,4 +29,6 @@ sp = (sp + 1) % 3;
 <p>Update in progress<span id="dots">.</span></p>
 </body></html>)rawliteral";
 
+}
+}
 #endif

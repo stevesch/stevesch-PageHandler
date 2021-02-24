@@ -1,0 +1,67 @@
+html {
+  font-family: Verdana;
+  display: inline-block;
+  text-align: center;
+}
+p {
+  font-size: 1.2rem;
+}
+body {
+  margin: 0;
+}
+.titlebar {
+  overflow: hidden;
+  background-color: #29a64f;
+  color: white;
+  font-size: 0.6rem;
+}
+.titlefield {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.content {
+  padding: 4px;
+}
+.card {
+  background-color: white;
+  box-shadow: 2px 2px 7px 2px #a0a0a0;
+  padding: 4px;
+}
+.cards {
+  padding: 10px;
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-gap: 1.0rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.reading {
+  font-size: 1.4rem;
+}
+.p2 {
+  display: block;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  margin-left: 0;
+  margin-right: 0;
+}
+.largeChart {
+  padding: 14px;
+  max-width: 900px;
+  margin: 8px auto;
+  box-shadow: 2px 2px 7px 2px #a0a0a0;
+}
+table {
+  border: 1px solid #a0a0a0;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+tr {
+  border: 1px solid #a0a0a0;
+  border-collapse: collapse;
+}
+td {
+  font-size: 12px;
+  padding: 2px 5px;
+  text-align: left;
+}

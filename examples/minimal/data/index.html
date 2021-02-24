@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html lang="en-US" xml:lang="en-US">
+<head>
+  <title>Test Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div class="titlebar">
+    <h1>
+      <div class="titlefield">Test PageHandler Library [%HOSTNAME%]</div>
+      <div class="titlefield">
+        <span data-varinner="DATETIME">%DATETIME%</span>
+      </div>
+    </h1>
+  </div>
+
+  <div class="content">
+    <div class="cards">
+      <div class="card">
+        <p><i class="fas fa-tachometer-alt" style="color:#202020;"></i> Int Value 1</p>
+        <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
+      </div>
+      <div class="card">
+        <p><i class="fas fa-i-cursor" style="color:#202020;"></i> Int Value 1</p>
+        <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
+        <p><input type="text" data-varname="INTVALUE1" data-clear="1" onchange="sendValueChange(event)"/></p>
+      </div>
+      <div class="card">
+        <p><i class="fas fa-sliders-h" style="color:#202020;"></i> Int Value 1</p>
+        <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
+        <p><input type="range" min="0" max="255" class="watcher" value="%INTVALUE1%" data-varname="INTVALUE1" onchange="sendValueChange(event)"/></p>
+      </div>
+
+      <div class="card">
+        <p><i class="fas fa-chart-line" style="color:#202020;"></i> Int Value 1</p>
+        <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
+        <p class="p2"><canvas class="chartEl" data-varname="INTVALUE1"
+          data-xmax="60" data-xinterval="0.5"
+          data-ymin="0" data-ymax="255"></canvas></p>
+      </div>
+      
+      <div class="card">
+        <p><i class="fas fa-tachometer-alt" style="color:#202020;"></i> Float Value 1</p>
+        <p><span class="reading"><span data-varinner="FLOATVALUE1">%FLOATVALUE1%</span> units</span></p>
+      </div>
+      <div class="card">
+        <p><i class="fas fa-i-cursor" style="color:#202020;"></i> Float Value 1</p>
+        <p><span class="reading"><span data-varinner="FLOATVALUE1">%FLOATVALUE1%</span> units</span></p>
+        <p><input type="text" data-varname="FLOATVALUE1" data-clear="1" onchange="sendValueChange(event)"/></p>
+      </div>
+      <div class="card">
+        <p><i class="fas fa-sliders-h" style="color:#202020;"></i> Float Value 1</p>
+        <p><span class="reading"><span data-varinner="FLOATVALUE1">%FLOATVALUE1%</span> units</span></p>
+        <p><input type="range" min="0.0" max="1.0" step="0.05" class="watcher" value="%FLOATVALUE1%" data-varname="FLOATVALUE1" onchange="sendValueChange(event)"/></p>
+      </div>
+
+      <div class="card">
+        <p><i class="fas fa-palette" style="color:#eeee00;"></i> Color Value 1</p>
+        <p><span class="reading"><span data-varinner="COLORVALUE1">%COLORVALUE1%</span> units</span></p>
+        <p><input type="color" class="watcher" value="%COLORVALUE1%" data-varname="COLORVALUE1" onchange="sendValueChange(event)"/></p>
+      </div>
+
+      <div class="card">
+        <p><i class="fas fa-poll-h" style="color:#202020;"></i> Memory Stats</p>
+        <table>
+          <tr>
+            <td>Heap free</td>
+            <td data-varinner="MEMFREEHEAP">%MEMFREEHEAP%</td>
+          </tr>
+          <tr>
+            <td>Heap max alloc</td>
+            <td data-varinner="MEMMAXALLOCHEAP">%MEMMAXALLOCHEAP%</td>
+          </tr>
+          <tr>
+            <td>Heap min free</td>
+            <td data-varinner="MEMMINFREEHEAP">%MEMMINFREEHEAP%</td>
+          </tr>
+          <tr>
+            <td>Heap size</td>
+            <td data-varinner="MEMHEAPSIZE">%MEMHEAPSIZE%</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script src="/pageServer.js" type="text/javascript"></script>
+<script>
+  // register processor reflections, e.g. TEMPERATURE, HUMIDITY, FLOATVALUE1, etc.
+  // This is for standard replacement of text fields within the HTML:
+  // (contents is dynamically populated upon send of index from server)
+  var reflections = [ %REFL_LIST% ];
+  initPageServer(reflections);
+</script>
+</body>
+</html>
