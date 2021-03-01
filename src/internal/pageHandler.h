@@ -39,26 +39,48 @@ namespace PageHandler {
   template <typename T> class VarReflector
   {
   public:
-    VarReflector(const char* varName, const T& v0) : mCurrentValue(v0) {
+    typedef VarReflector<T> self_t;
+    typedef std::function<void(self_t&, bool fromReceive)> callback_self_t;
+
+    VarReflector(const char* varName, const T& v0) : mCurrentValue(v0)
+    {
+      registerAs(varName);
+    }
+
+    VarReflector(const char* varName, const T& v0, const callback_self_t& onChange) :
+      mCurrentValue(v0), mOnChanged(onChange)
+    {
       registerAs(varName);
     }
 
     String process(const String& varName) { return this->toString(mCurrentValue); }
     void receive(const String& varName, const String& value) {
-      fromString(mCurrentValue, value);
+      T tempValue;
+      fromString(tempValue, value);
+      if (mCurrentValue != tempValue) {
+        std::swap(tempValue, mCurrentValue);
+        notifyChanged(true);
+      }
       //already done at lower-level: processAndSendRegisteredValue(varName); // reflect back to clients
     }
 
     // treat this object as a reference to its value
     operator T& () { return mCurrentValue; }
-    operator const T& () const { return mCurrentValue; }
-    
-    VarReflector<T>& operator=(const T& src) { mCurrentValue = src; return *this; }
+
+    VarReflector<T>& operator=(const T& src) {
+      if (mCurrentValue != src) {
+        mCurrentValue = src;
+        notifyChanged(false);
+      }
+      return *this;
+    }
 
     void registerAs(const char* varName) {
       registerProcessor(varName, [=](const String& varName){ return this->process(varName); });
       registerReceiver(varName, [=](const String& varName, const String& value){ return this->receive(varName, value); });
     }
+
+    void setOnChanged(const callback_self_t& fn) { mOnChanged = fn; }
 
   protected:
     // convert value types to/from String
@@ -70,7 +92,14 @@ namespace PageHandler {
     void fromString(int& dst, const String& src) const { dst = src.toInt(); }
     void fromString(String& dst, const String& src) const { dst = src; }
 
+    inline void notifyChanged(bool fromReceive) {
+      if (mOnChanged) {
+        this->mOnChanged(*this, fromReceive);
+      }
+    }
+
     T mCurrentValue;
+    callback_self_t mOnChanged;
   };
 
 }
