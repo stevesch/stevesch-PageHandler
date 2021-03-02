@@ -36,7 +36,20 @@ namespace {
   // Send code-based page for reloader (for when SPIFFS is not available)
   void handleReloader(AsyncWebServerRequest *request)
   {
-    request->send(200, "text/html", stevesch::PageHandler::kReloader);
+    
+    String str(stevesch::PageHandler::kReloader);
+    str.replace("%TITLE%", "Updating...");
+    str.replace("%MESSAGE%", "Update in progress");
+    request->send(200, "text/html", str);
+  }
+
+  void handleRestart(AsyncWebServerRequest *request)
+  {
+    String str(stevesch::PageHandler::kReloader);
+    str.replace("%TITLE%", "Restarting...");
+    str.replace("%MESSAGE%", "Restarting");
+    request->send(200, "text/html", str);
+    ESP.restart();
   }
 
   // Send the main index.html page
@@ -181,6 +194,7 @@ namespace PageHandler {
     // api functions for communication from client
     server.on("/api/set", HTTP_GET, handleSet);
     server.on("/api/reloader", handleReloader); // for testing reloader page
+    server.on("/api/restart", handleRestart); // for testing reloader page
 
     // serve index page, css, js, etc.
     server.on("/", HTTP_GET, handleIndex);

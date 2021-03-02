@@ -9,7 +9,7 @@ namespace PageHandler {
 // HTML web page to handle 3 input fields (input1, input2, input3)
 const char kReloader[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
-<html><head><title>Updating...</title>
+<html><head><title>%TITLE%</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 html { font-family: Verdana; }
@@ -26,7 +26,7 @@ document.getElementById('dots').innerHTML = Array(sp+1).join('&nbsp;') + '.';
 sp = (sp + 1) % 3;
 }, 500);
 </script>
-<p>Update in progress<span id="dots">.</span></p>
+<p>%MESSAGE%<span id="dots">.</span></p>
 </body></html>)rawliteral";
 
 }
