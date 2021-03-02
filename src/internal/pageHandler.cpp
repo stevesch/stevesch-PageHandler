@@ -23,6 +23,8 @@ namespace {
 
   AsyncEventSource events("/events");
 
+  long restartTime = 0;
+
   // Replace placeholders with values,
   // e.g. replace %FOO% with return value of function registered for "FOO"
   String processor(const String& var);
@@ -49,7 +51,7 @@ namespace {
     str.replace("%TITLE%", "Restarting...");
     str.replace("%MESSAGE%", "Restarting");
     request->send(200, "text/html", str);
-    ESP.restart();
+    restartTime = millis() + 1000;
   }
 
   // Send the main index.html page
@@ -209,6 +211,11 @@ namespace PageHandler {
 
   void loop()
   {
+    if (restartTime) {
+      if (millis() >= restartTime) {
+        ESP.restart();
+      }
+    }
   }
 
   bool processAndSendRegisteredValue(const String& name)
