@@ -19,9 +19,6 @@
   "dependencies": [
     {
         "name": "ESP Async WebServer"
-    },
-    {
-        "name": "SPIFFS"
     }
   ]
 }
