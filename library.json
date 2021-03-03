@@ -17,10 +17,6 @@
     "maintainer": true
   },
   "dependencies": [
-    {
-      "owner": "me-no-dev",
-      "name": "ESP Async WebServer",
-      "version": "^1.2.3"
-    }
+    "https://github.com/me-no-dev/ESPAsyncWebServer.git"
   ]
 }
