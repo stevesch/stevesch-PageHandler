@@ -52,8 +52,7 @@ The "pageHandler.js" file in the data folder should be copied as-is (without mod
   <script src="/pageHandler.js" type="text/javascript">
   </script>
   <script>
-    var reflections = [ %REFL_LIST% ];
-    function initPageHandler(reflections)
+    window.reflections = ["%REFL_LIST%"];
   </script>
   . . .
 </body></html>

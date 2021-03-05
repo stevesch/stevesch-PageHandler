@@ -159,8 +159,12 @@ namespace {
 
   String processReflectionList(const String& name)
   {
+    // resulting string format:
+    // value1","value2","value3","value4
+    // note lack of leading/trailing double-quotes, because document should have
+    // window.reflections = ["%REFL_LIST%"];
     String s = "";
-    const char* commaSep = ",";
+    const char* wordSep = "\",\"";
     const char* nextSep = nullptr;
     for(auto&& it : processorRegistry)
     {
@@ -169,10 +173,8 @@ namespace {
       if (nextSep) {
         s += nextSep;
       }
-      s += "'";
       s += name;
-      s += "'";
-      nextSep = commaSep;
+      nextSep = wordSep;
     }
     return s;
   }

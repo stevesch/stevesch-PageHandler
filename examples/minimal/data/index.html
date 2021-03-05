@@ -92,8 +92,7 @@
   // register processor reflections, e.g. TEMPERATURE, HUMIDITY, FLOATVALUE1, etc.
   // This is for standard replacement of text fields within the HTML:
   // (contents is dynamically populated upon send of index from server)
-  var reflections = [ %REFL_LIST% ];
-  initPageHandler(reflections);
+  window.reflections = ["%REFL_LIST%"];
 </script>
 </body>
 </html>

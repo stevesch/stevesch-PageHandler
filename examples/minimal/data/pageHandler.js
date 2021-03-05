@@ -1,8 +1,7 @@
 // THIS IS A STOCK FILE AND SHOULD NOT NEED MODIFICATION
 // Just include this script in your HTML page and trigger
-// the following 2 lines as an inline script from that page:
-// var reflections = [ %REFL_LIST% ];
-// function initPageHandler(reflections)
+// the following line as an inline script from that page:
+// window.reflections = ["%REFL_LIST%"];
 
 var serverSource;
 if (!!window.EventSource) {
@@ -306,7 +305,7 @@ function attachChart(el, varName) {
 // HUMIDITY, FLOATVALUE1, etc.
 // This is for standard replacement of text fields within the HTML:
 // (contents is dynamically populated upon send of index from server)
-// var reflections = [ %REFL_LIST% ];
+// window.reflections = ["%REFL_LIST%"];
 function initPageHandler(reflections) {
   if (serverSource) {
     // serverSource.addEventListener('open', function(e) {
