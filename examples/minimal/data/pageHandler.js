@@ -298,14 +298,24 @@
   }
   
   function attachRangeTips() {
-    const allRanges = document.querySelectorAll(".range-wrap");
-    allRanges.forEach((wrap) => {
-      const range = wrap.querySelector(".range");
-      const bubble = wrap.querySelector(".bubble");
+    const ranges = document.querySelectorAll("input[type='range'].tip");
+    ranges.forEach((range) => {
+      const bubble = document.createElement("output");
+      bubble.className = "bubble";
+      range.parentElement.appendChild(bubble);
       attachRangeTip(range, bubble);
     });
   
+    // const allRanges = document.querySelectorAll("input[type='range']");
+    // allRanges.forEach((range) => {
+    //   const bubble = range.parentElement.querySelector(".bubble");
+    //   if (bubble) {
+    //     attachRangeTip(range, bubble);
+    //   }
+    // });
+  
     function attachRangeTip(range, bubble) {
+      console.log("Attaching range tip to " + range.name);
       range.addEventListener("input", () => {
         setBubble(range, bubble);
       });
@@ -319,8 +329,9 @@
       const newVal = Number(((val - min) * 100) / (max - min));
       bubble.innerHTML = val;
     
-      // depends on size of the native UI thumb...
-      bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+      // depends on layout, size of native thumb, etc...
+      // TODO: generalize
+      bubble.style.left = `calc(${50 + 0.72*(newVal - 50)}%)`;
     }
   }
   
@@ -337,6 +348,10 @@
       console.log("WARNING, PageHandler: No reflections defined on page.");
     }
     reflections = window.reflections;
+    if (reflections && reflections.length == 1 && reflections[0] === "%REFL_LIST%") {
+      // server did not substitute for placeholder
+      reflections.length = 0;
+    }
   
     if (serverSource) {
       // serverSource.addEventListener('open', function(e) {
@@ -536,11 +551,12 @@
       if (quietIntervals > 2) {
         // in case of unresponsive server, attempt reload-- might be updating
         quietIntervals = 0;
-        location.reload();
+        if (false) {
+          location.reload();
+        }
       }
     }, 4000);
   }
   
-  window.initPageHandler = initPageHandler;
   })();
   
