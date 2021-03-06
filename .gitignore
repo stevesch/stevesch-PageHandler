@@ -1,8 +1,8 @@
 .pio
 .vscode
+examples/minimal/minimal.ino.cpp
 
 .DS_Store
 $RECYCLE.BIN/
-
 Thumbs.db
 ._*

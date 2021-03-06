@@ -26,12 +26,12 @@
       <div class="card">
         <p><i class="fas fa-i-cursor" style="color:#202020;"></i> Int Value 1</p>
         <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
-        <p><input type="text" data-varname="INTVALUE1" data-clear="1" onchange="sendValueChange(event)"/></p>
+        <p><input type="text" class="sender" data-varname="INTVALUE1" data-clear="1"></p>
       </div>
       <div class="card">
         <p><i class="fas fa-sliders-h" style="color:#202020;"></i> Int Value 1</p>
         <p><span class="reading"><span data-varinner="INTVALUE1">%INTVALUE1%</span> units</span></p>
-        <p><input type="range" min="0" max="255" class="watcher" value="%INTVALUE1%" data-varname="INTVALUE1" onchange="sendValueChange(event)"/></p>
+        <p><input type="range" min="0" max="255" class="tip watcher sender" value="%INTVALUE1%" data-varname="INTVALUE1"></p>
       </div>
 
       <div class="card">
@@ -49,18 +49,18 @@
       <div class="card">
         <p><i class="fas fa-i-cursor" style="color:#202020;"></i> Float Value 1</p>
         <p><span class="reading"><span data-varinner="FLOATVALUE1">%FLOATVALUE1%</span> units</span></p>
-        <p><input type="text" data-varname="FLOATVALUE1" data-clear="1" onchange="sendValueChange(event)"/></p>
+        <p><input type="text" class="sender" data-varname="FLOATVALUE1" data-clear="1"></p>
       </div>
       <div class="card">
         <p><i class="fas fa-sliders-h" style="color:#202020;"></i> Float Value 1</p>
         <p><span class="reading"><span data-varinner="FLOATVALUE1">%FLOATVALUE1%</span> units</span></p>
-        <p><input type="range" min="0.0" max="1.0" step="0.05" class="watcher" value="%FLOATVALUE1%" data-varname="FLOATVALUE1" onchange="sendValueChange(event)"/></p>
+        <p><input type="range" min="0.0" max="1.0" step="0.05" class="tip watcher sender" value="%FLOATVALUE1%" data-varname="FLOATVALUE1"></p>
       </div>
 
       <div class="card">
         <p><i class="fas fa-palette" style="color:#eeee00;"></i> Color Value 1</p>
         <p><span class="reading"><span data-varinner="COLORVALUE1">%COLORVALUE1%</span> units</span></p>
-        <p><input type="color" class="watcher" value="%COLORVALUE1%" data-varname="COLORVALUE1" onchange="sendValueChange(event)"/></p>
+        <p><input type="color" class="watcher sender" value="%COLORVALUE1%" data-varname="COLORVALUE1"></p>
       </div>
 
       <div class="card">
