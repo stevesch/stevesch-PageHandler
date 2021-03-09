@@ -96,8 +96,11 @@ The following is an example of a control (in this case, a slider) that sends val
 ```
 
 The "sender" class specification says that this control will send its value changes to the server.
+
 The "watcher" class specification says that this control will respond to changes sent _from_ the server.
+
 The 'data-varname="INTVALUE1"' tells "sender" and "watcher" which server variable (VarReflector) to use.
+
 The 'value="%INTVALUE1%"' specification means that the initial value of the control will be set to the VarReflector variable named "INTVALUE1" on the server.
 
 The "tip" class specification applies only to range controls and will automatically add a tooltip with the value whenever the range slider is being dragged.
