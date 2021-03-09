@@ -79,6 +79,10 @@ void loop() {
   vrIntValue1 = x;
 
   stevesch::PageHandler::processAndSendUpdatedServerValues();
+  // you may wish to limit the rate that you call processAndSendUpdatedServerValues or
+  // limit the rate at which you change variables so that the network doesn't get
+  // too heavily loaded.  i.e. don't call more than a few times a second unless
+  // necessary.
 }
 ```
 
@@ -88,8 +92,12 @@ The inner text of the span will be replaced whenever the server-side variable, v
 
 The following is an example of a control (in this case, a slider) that sends values back to the server:
 ```
-<input type="range" min="0" max="255" class="watcher sender" value="%INTVALUE1%" data-varname="INTVALUE1""/>
+<input type="range" min="0" max="255" class="watcher sender tip" value="%INTVALUE1%" data-varname="INTVALUE1""/>
 ```
 
 The "sender" class specification says that this control will send its value changes to the server.
 The "watcher" class specification says that this control will respond to changes sent _from_ the server.
+The 'data-varname="INTVALUE1"' tells "sender" and "watcher" which server variable (VarReflector) to use.
+The 'value="%INTVALUE1%"' specification means that the initial value of the control will be set to the VarReflector variable named "INTVALUE1" on the server.
+
+The "tip" class specification applies only to range controls and will automatically add a tooltip with the value whenever the range slider is being dragged.
