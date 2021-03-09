@@ -88,7 +88,8 @@ The inner text of the span will be replaced whenever the server-side variable, v
 
 The following is an example of a control (in this case, a slider) that sends values back to the server:
 ```
-<input type="range" min="0" max="255" class="watcher" value="%INTVALUE1%" data-varname="INTVALUE1" onchange="sendValueChange(event)"/>
+<input type="range" min="0" max="255" class="watcher sender" value="%INTVALUE1%" data-varname="INTVALUE1""/>
 ```
 
-The "watcher" class specification additionally says that this control will respond to changes sent _from_ the server.
+The "sender" class specification says that this control will send its value changes to the server.
+The "watcher" class specification says that this control will respond to changes sent _from_ the server.
