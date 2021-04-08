@@ -4,7 +4,7 @@
 
 #include <stevesch-PageHandler.h>
 
-using stevesch::PageHandler::VarReflector;
+using stevesch::VarReflector;
 
 // timing of automatic variable sending
 long lastAutoSend = -1;
@@ -19,17 +19,18 @@ void printWiFiStaus();
 String processHostName(const String& name);
 String processDateTime(const String& name);
 
-VarReflector<int> vrIntValue1("INTVALUE1", 17);
-VarReflector<float> vrValue1("FLOATVALUE1", 0.65f);
-
-VarReflector<String> vrColorValue1("COLORVALUE1", "#ffff00");
-
-VarReflector<int> vrMemFreeHeap("MEMFREEHEAP", 0);
-VarReflector<int> vrMemMaxAllocHeap("MEMMAXALLOCHEAP", 0);
-VarReflector<int> vrMemMinFreeHeap("MEMMINFREEHEAP", 0);
-VarReflector<int> vrMemHeapSize("MEMHEAPSIZE", 0);
-
 AsyncWebServer server(80);
+stevesch::PageHandler pageHandler0;
+
+VarReflector<int> vrIntValue1("INTVALUE1", 17, pageHandler0);
+VarReflector<float> vrValue1("FLOATVALUE1", 0.65f, pageHandler0);
+
+VarReflector<String> vrColorValue1("COLORVALUE1", "#ffff00", pageHandler0);
+
+VarReflector<int> vrMemFreeHeap("MEMFREEHEAP", 0, pageHandler0);
+VarReflector<int> vrMemMaxAllocHeap("MEMMAXALLOCHEAP", 0, pageHandler0);
+VarReflector<int> vrMemMinFreeHeap("MEMMINFREEHEAP", 0, pageHandler0);
+VarReflector<int> vrMemHeapSize("MEMHEAPSIZE", 0, pageHandler0);
 
 void setup()
 {
@@ -37,13 +38,14 @@ void setup()
   while (!Serial);
   Serial.println("Setup initializing...");
 
-  stevesch::PageHandler::registerProcessor("HOSTNAME", processHostName);
-  stevesch::PageHandler::registerProcessor("DATETIME", processDateTime);
+  pageHandler0.setup();
+  pageHandler0.registerProcessor("HOSTNAME", processHostName);
+  pageHandler0.registerProcessor("DATETIME", processDateTime);
 
   // ESP_NAME and ESP_AUTH are defined in platformio.ini for this example
   stevesch::WiFiConnector::setup(&server, ESP_NAME, ESP_AUTH);
 
-  stevesch::PageHandler::setup(server);
+  pageHandler0.connect(server); // cases handling onWifiLost should call pageHandler0.disconnect() there.
   server.begin();
 
   Serial.println("Setup complete.");
@@ -67,7 +69,7 @@ void loop()
     vrMemHeapSize = ESP.getHeapSize();
 
     // update anything that has changed since last send:
-    stevesch::PageHandler::processAndSendUpdatedServerValues();
+    pageHandler0.processAndSendUpdatedServerValues();
   }
 
   // log every few seconds
@@ -81,7 +83,7 @@ void loop()
   }
 
   stevesch::WiFiConnector::loop();
-  stevesch::PageHandler::loop();
+  pageHandler0.loop();
 }
 
 

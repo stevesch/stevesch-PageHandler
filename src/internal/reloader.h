@@ -4,10 +4,9 @@
 #include <pgmspace.h>   // for PROGMEM
 
 namespace stevesch {
-namespace PageHandler {
 
 // HTML web page to handle 3 input fields (input1, input2, input3)
-const char kReloader[] PROGMEM = R"rawliteral(
+const char kPageHandlerReloader[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
 <html><head><title>%TITLE%</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,6 +28,5 @@ sp = (sp + 1) % 3;
 <p>%MESSAGE%<span id="dots">.</span></p>
 </body></html>)rawliteral";
 
-}
 }
 #endif
