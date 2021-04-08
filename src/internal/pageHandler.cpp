@@ -25,7 +25,7 @@ namespace stevesch
     // Initialize SPIFFS
     if (!SPIFFS.begin(true))
     {
-      Serial.println("PageHandler: An Error has occurred while mounting SPIFFS.");
+      // Serial.println("PageHandler: An Error has occurred while mounting SPIFFS.");
     }
   }
 
@@ -74,7 +74,7 @@ namespace stevesch
     if (value != entry.lastSentValue)
     {
       entry.lastSentValue = value;
-      Serial.printf("sendNamedValue %s=%s\n", name.c_str(), value.c_str());
+      // Serial.printf("sendNamedValue %s=%s\n", name.c_str(), value.c_str());
       sendNamedValue(name.c_str(), value.c_str());
     }
     return true;
@@ -154,7 +154,7 @@ namespace stevesch
 
   void PageHandler::handleSet(AsyncWebServerRequest *request)
   {
-    Serial.println("handleSet...");
+    // Serial.println("handleSet...");
     AsyncWebParameter *nameParam = request->getParam(String("name"));
     if (nameParam)
     {
@@ -163,7 +163,7 @@ namespace stevesch
       {
         const String &valueStr = valueParam->value();
         const String &nameStr = nameParam->value();
-        Serial.printf("handleSet: %s=%s\n", nameStr.c_str(), valueStr.c_str());
+        // Serial.printf("handleSet: %s=%s\n", nameStr.c_str(), valueStr.c_str());
         request->send(200, "text/html", valueStr.c_str());
         receive(nameStr, valueStr);
         return;
@@ -177,10 +177,10 @@ namespace stevesch
   // Handle Web Server Events
   void PageHandler::handleEvents(AsyncEventSourceClient *client)
   {
-    if (client->lastId())
-    {
-      Serial.printf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
-    }
+    // if (client->lastId())
+    // {
+    //   Serial.printf("Client reconnected.  Last message ID: %u\n", client->lastId());
+    // }
     // send event with message, id as current millis
     // and set reconnect delay to 10s
     client->send("Server attached", NULL, millis(), 10000);
@@ -189,8 +189,8 @@ namespace stevesch
   // void handlePageNotFound(AsyncWebServerRequest* request);
   void PageHandler::handlePageNotFound(AsyncWebServerRequest *request)
   {
-    String str = "Callback: handlePageNotFound";
-    Serial.println(str);
+    // String str = "Callback: handlePageNotFound";
+    // Serial.println(str);
     request->redirect("/");
   }
 
@@ -216,20 +216,20 @@ namespace stevesch
     if (it != mReceiverRegistry.end())
     {
       const RecvRegistryEntry &entry = it->second;
-      Serial.printf("recvFn: %s=%s\n", name.c_str(), value.c_str());
+      // Serial.printf("recvFn: %s=%s\n", name.c_str(), value.c_str());
       (entry.recvFn)(name, value);
     }
-    else
-    {
-      Serial.printf("recvFn: %s=%s NOT REGISTERED\n", name.c_str(), value.c_str());
-    }
+    // else
+    // {
+    //   Serial.printf("recvFn: %s=%s NOT REGISTERED\n", name.c_str(), value.c_str());
+    // }
 
     // reflect back to client(s)-- attempt to use processor[s] first, in case
     // the server has altered the received value (applied limits, transformations, etc.)
     if (!stevesch::PageHandler::processAndSendRegisteredValue(name))
     {
       // it wasn't registered, so reflect received value (unmodified) back to all clients
-      Serial.printf("Unregistered reflect: %s=%s\n", name.c_str(), value.c_str());
+      // Serial.printf("Unregistered reflect: %s=%s\n", name.c_str(), value.c_str());
       sendNamedValue(name.c_str(), value.c_str());
     }
   }
