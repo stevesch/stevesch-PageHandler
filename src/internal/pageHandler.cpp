@@ -95,6 +95,53 @@ namespace stevesch
     }
   }
 
+  int PageHandler::processAndSendUpdatedServerValues(int maxToSend, int startHint)
+  {
+    auto&& itBegin = mProcessorRegistry.begin();
+    auto&& itEnd = mProcessorRegistry.end();
+    
+    int startIndex = 0;
+    const int totalNum = mProcessorRegistry.size();
+    int numToSend = std::min(totalNum, maxToSend);
+    auto it = itBegin;
+    if (startHint < totalNum) {
+      for (int n = startHint; n > 0; --n) {
+        ++it;
+      }
+      startIndex = startHint;
+    }
+    
+    int nextIndex = startIndex;
+
+    while (numToSend > 0) {
+      ProcRegistryEntry &entry = it->second;
+      const String &name = it->first;
+      String value = (entry.procFn)(name);
+      if (value != entry.lastSentValue)
+      {
+        entry.lastSentValue = value;
+        sendNamedValue(name.c_str(), value.c_str());
+        --numToSend;
+      }
+
+      ++nextIndex;
+      ++it;
+      if (it == itEnd) {
+        it = itBegin;
+        nextIndex = 0;
+      }
+
+      if (nextIndex == startIndex) {
+        // wrapped back to initial index-- number that needed to be sent was <=  maxToSend
+        nextIndex = 0;  // start at beginning next time
+        break;
+      }
+    }
+
+    return nextIndex;
+  }
+
+
   void PageHandler::registerProcessor(const String &var, procFn_t fn)
   {
     ProcRegistryEntry entry;

@@ -41,6 +41,7 @@ namespace stevesch
 
     bool processAndSendRegisteredValue(const String &name); // send a single variable (if changed)
     void processAndSendUpdatedServerValues();               // send all changed variables
+    int processAndSendUpdatedServerValues(int maxToSend, int startHint);
 
     void registerProcessor(const String &var, procFn_t fn);
     void registerReceiver(const String &var, recvFn_t fn);
