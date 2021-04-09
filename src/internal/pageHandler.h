@@ -65,7 +65,7 @@ namespace stevesch
     void handleJs(AsyncWebServerRequest *request);
     void handleIndex(AsyncWebServerRequest *request);
     void handleSet(AsyncWebServerRequest *request);
-    void handleEvents(AsyncEventSourceClient *client);
+    void handleConnectClient(AsyncEventSourceClient *client);
     void handlePageNotFound(AsyncWebServerRequest *request);
 
     // Replace placeholders with values,

@@ -17,7 +17,7 @@ namespace stevesch
     registerProcessor("REFL_LIST", std::bind(&PageHandler::processReflectionList, this, _1));
 
     // handle client connection for server-side events
-    mEvents.onConnect(std::bind(&PageHandler::handleEvents, this, _1));
+    mEvents.onConnect(std::bind(&PageHandler::handleConnectClient, this, _1));
   }
 
   void PageHandler::setup()
@@ -175,15 +175,15 @@ namespace stevesch
   }
 
   // Handle Web Server Events
-  void PageHandler::handleEvents(AsyncEventSourceClient *client)
+  void PageHandler::handleConnectClient(AsyncEventSourceClient *client)
   {
+    Serial.printf("Client connected, lastId: %u\n", client->lastId());
     // if (client->lastId())
     // {
     //   Serial.printf("Client reconnected.  Last message ID: %u\n", client->lastId());
     // }
     // send event with message, id as current millis
     // and set reconnect delay to 10s
-    client->send("Server attached", NULL, millis(), 10000);
   }
 
   // void handlePageNotFound(AsyncWebServerRequest* request);
