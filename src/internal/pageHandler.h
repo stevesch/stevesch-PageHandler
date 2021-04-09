@@ -43,6 +43,8 @@ namespace stevesch
     void processAndSendUpdatedServerValues();               // send all changed variables
     int processAndSendUpdatedServerValues(int maxToSend, int startHint);
 
+    int snoopUpdatedServerValues() const;
+
     void registerProcessor(const String &var, procFn_t fn);
     void registerReceiver(const String &var, recvFn_t fn);
 

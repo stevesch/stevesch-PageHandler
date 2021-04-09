@@ -80,6 +80,22 @@ namespace stevesch
     return true;
   }
 
+  int PageHandler::snoopUpdatedServerValues() const
+  {
+    int numDirtyEntries = 0;
+    for (auto &&it : mProcessorRegistry)
+    {
+      const ProcRegistryEntry &entry = it.second;
+      const String &name = it.first;
+      String value = (entry.procFn)(name);
+      if (value != entry.lastSentValue)
+      {
+        ++numDirtyEntries;
+      }
+    }
+    return numDirtyEntries;
+  }
+
   void PageHandler::processAndSendUpdatedServerValues()
   {
     for (auto &&it : mProcessorRegistry)
