@@ -133,13 +133,18 @@ namespace stevesch
     // treat this object as a reference to its value
     operator T &() { return mCurrentValue; }
 
-    VarReflector<T> &operator=(const T &src)
+    void set(const T &src, bool fromReceive)
     {
       if (mCurrentValue != src)
       {
         mCurrentValue = src;
-        notifyChanged(false);
+        notifyChanged(fromReceive);
       }
+    }
+
+    VarReflector<T> &operator=(const T &src)
+    {
+      set(src, false);
       return *this;
     }
 
