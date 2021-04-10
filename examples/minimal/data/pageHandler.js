@@ -315,7 +315,7 @@
     // });
   
     function attachRangeTip(range, bubble) {
-      console.log("Attaching range tip to " + range.name);
+      console.log("Attaching range tip to " + range.dataset.varname);
       range.addEventListener("input", () => {
         setBubble(range, bubble);
       });
@@ -545,17 +545,22 @@
       attachRangeTips();
       attachCharts();
     }
-  
+
+    var reloadCheckInterval = 4000;
     setInterval(function() {
       ++quietIntervals;
       if (quietIntervals > 2) {
+        console.log("No communication from server for " + (quietIntervals*reloadCheckInterval*0.001) + " seconds");
         // in case of unresponsive server, attempt reload-- might be updating
-        quietIntervals = 0;
-        if (false) {
-          location.reload();
+        if (quietIntervals > 3) {
+          quietIntervals = 0;
+          if (true) {
+            console.log("Reloading page...");
+            location.reload();
+          }
         }
       }
-    }, 4000);
+    }, reloadCheckInterval);
   }
   
   })();
