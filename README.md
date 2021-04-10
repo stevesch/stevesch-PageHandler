@@ -71,18 +71,41 @@ Client side variables (i.e. those displayed in your HTML) are specified, for exa
 and correspond to a server-side variable (in code on your ESP32) like this:
 
 ```
-VarReflector<int> vrIntValue1("INTVALUE1", 17);
+AsyncWebServer server(80);
+stevesch::PageHandler pageHandler0;
+
+VarReflector<int> vrIntValue1("INTVALUE1", 17, pageHandler0);
+
+void setup() {
+  pageHandler0.setup();
+
+  // (connect wifi)
+
+  // after wifi is connected (could be in onWifiConnect callback for async wifi setups):
+  pageHandler0.connect(server);
+  server.begin();
+}
+
+// // For async wifi setups:
+// void onWiFiLost()
+// {
+//   pageHandler0.disconnect(server);
+// }
 
 void loop() {
   int x = vrIntvalue1;
   // . . . do something with x
   vrIntValue1 = x;
 
-  stevesch::PageHandler::processAndSendUpdatedServerValues();
   // you may wish to limit the rate that you call processAndSendUpdatedServerValues or
   // limit the rate at which you change variables so that the network doesn't get
   // too heavily loaded.  i.e. don't call more than a few times a second unless
   // necessary.
+  pageHandler0.processAndSendUpdatedServerValues();
+
+
+  // call PageHandler loop on every loop
+  pageHandler0.loop();
 }
 ```
 
