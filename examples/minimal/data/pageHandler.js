@@ -269,7 +269,7 @@
         changed = true;
       }
       if (changed) {
-        console.log("Chart x: " + datax);
+        // console.log("Chart x: " + datax);
         // // copy to force chart update
         // data.datasets[1].data = dataMain.slice(0);
         // dataMain = data.datasets[1].data;
@@ -504,7 +504,6 @@
       }
   
       document.querySelectorAll('.sender').forEach(item => {
-        var name = item.dataset.varname;
         var fn;
         var defEvent = 'change';
         switch (item.type) {
@@ -524,6 +523,7 @@
             fn = sendValueState;
             break;
         }
+        var name = item.dataset.varname || item.dataset.getapi;
         console.log("Adding sender for " + name);
         var handler = function (e) { fn.call(item, e); };
         if (item.dataset.sendtypes) {

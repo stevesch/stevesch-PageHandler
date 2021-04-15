@@ -98,6 +98,8 @@ namespace stevesch
 
   void PageHandler::processAndSendUpdatedServerValues()
   {
+    const int kYieldPer = 16;
+    int numBeforeYield = kYieldPer;
     for (auto &&it : mProcessorRegistry)
     {
       ProcRegistryEntry &entry = it.second;
@@ -107,6 +109,10 @@ namespace stevesch
       {
         entry.lastSentValue = value;
         sendNamedValue(name.c_str(), value.c_str());
+        if (--numBeforeYield <= 0) {
+          yield();
+          numBeforeYield = kYieldPer;
+        }
       }
     }
   }
