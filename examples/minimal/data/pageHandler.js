@@ -423,7 +423,7 @@
         console.log("Adding watcher for " + name);
         serverSource.addEventListener(name, function(e) {
           quietIntervals = 0;
-          console.log("Watcher " + name + " = " + e.data);
+          // console.log("Watcher " + name + " = " + e.data);
           fn.call(item, e);
         }, false);
       });
