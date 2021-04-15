@@ -109,6 +109,7 @@ namespace stevesch
     typedef VarReflector<T> self_t;
     typedef std::function<void(self_t &, bool fromReceive)> callback_self_t;
 
+    VarReflector() {} // relies on default constructor for mCurrentValue
     VarReflector(const T &v0) : mCurrentValue(v0) {}
     VarReflector(const T &v0, const callback_self_t &onChange) : mCurrentValue(v0), mOnChanged(onChange) {}
 
