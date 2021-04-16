@@ -408,17 +408,21 @@
       document.querySelectorAll('.watcher').forEach(item => {
         var name = item.dataset.varname;
         var fn;
-        switch (item.type) {
-          case 'checkbox':
-            fn = applyToCheckbox;
-            break;
-          case 'radio':
-            fn = applyToRadio;
-            break;
-          default:
-          case 'range':
-            fn = applyToValue;
-            break;
+        if (item.dataset.varscript) {
+          fn = new Function('event', item.dataset.varscript);
+        } else {
+          switch (item.type) {
+            case 'checkbox':
+              fn = applyToCheckbox;
+              break;
+            case 'radio':
+              fn = applyToRadio;
+              break;
+            default:
+            case 'range':
+              fn = applyToValue;
+              break;
+          }
         }
         console.log("Adding watcher for " + name);
         serverSource.addEventListener(name, function(e) {

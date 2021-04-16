@@ -5,6 +5,8 @@ html {
 }
 p {
   font-size: 1.2rem;
+  margin-block-start: 0.5em;
+  margin-block-end: 0.5em;
 }
 body {
   margin: 0;
@@ -23,9 +25,13 @@ body {
   padding: 4px;
 }
 .card {
+  display: flex;
+  flex-flow: column nowrap;
   background-color: white;
   box-shadow: 2px 2px 7px 2px #a0a0a0;
   padding: 4px;
+  /* overflow-x: auto; interferes w/tooltips and is seldom needed */
+  position: relative; /* for better use of absolute positioning within cards */
 }
 .cards {
   padding: 10px;
@@ -36,7 +42,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 .reading {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 .p2 {
   display: block;
@@ -51,17 +57,17 @@ body {
   margin: 8px auto;
   box-shadow: 2px 2px 7px 2px #a0a0a0;
 }
-table {
+.tbl0 {
   border: 1px solid #a0a0a0;
   border-collapse: collapse;
-  margin: 0 auto;
+  margin: 4px auto;
+  font-size: 0.8em;
 }
-tr {
+.tbl0 tr {
   border: 1px solid #a0a0a0;
   border-collapse: collapse;
 }
-td {
-  font-size: 12px;
-  padding: 2px 5px;
+.tbl0 td {
+  padding: 0.3em 0.6em;
   text-align: left;
 }
