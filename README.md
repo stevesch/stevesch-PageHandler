@@ -52,7 +52,7 @@ The "pageHandler.js" file in the data folder should be copied as-is (without mod
   <script src="/pageHandler.js" type="text/javascript">
   </script>
   <script>
-    window.reflections = ["%REFL_LIST%"];
+    window.reflections = ["%REFL_LIST%"]; // NOTE: must use double-quotes
   </script>
   . . .
 </body></html>

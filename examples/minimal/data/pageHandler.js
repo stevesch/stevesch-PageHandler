@@ -1,7 +1,7 @@
 // THIS IS A STOCK FILE AND SHOULD NOT NEED MODIFICATION
 // Just include this script in your HTML page and trigger
-// the following 1 lines as an inline script from that page:
-// var reflections = [ %REFL_LIST% ];
+// the following line as an inline script from that page:
+// window.reflections = ["%REFL_LIST%"]; // NOTE: must use double-quotes
 
 (function() {
   document.addEventListener("DOMContentLoaded", initPageHandler, false);
@@ -336,12 +336,12 @@
   }
   
   
-  // @param reflections: Provided by index.html or external script:
+  // @global reflections: Provided by index.html.
   // Used to register processor reflection variables, e.g. TEMPERATURE,
   // HUMIDITY, FLOATVALUE1, etc.
   // This is for standard replacement of text fields within the HTML:
   // (contents is dynamically populated upon send of index from server)
-  // var reflections = [ %REFL_LIST% ];
+  // window.reflections = ["%REFL_LIST%"]; // NOTE: must use double-quotes
   function initPageHandler() {
     if (!window.reflections) {
       window.reflections = [];
@@ -350,6 +350,7 @@
     reflections = window.reflections;
     if (reflections && reflections.length == 1 && reflections[0] === "%REFL_LIST%") {
       // server did not substitute for placeholder
+      console.log("WARNING, PageHandler: reflections not replaced by server.");
       reflections.length = 0;
     }
   
