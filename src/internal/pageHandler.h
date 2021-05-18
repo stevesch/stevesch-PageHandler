@@ -131,8 +131,10 @@ namespace stevesch
       //already done at lower-level: processAndSendRegisteredValue(varName); // reflect back to clients
     }
 
-    // treat this object as a reference to its value
-    operator T &() { return mCurrentValue; }
+    // treat this object as a const reference to its value
+    // (modifications must go through assignment operator or set,
+    // so the reference here must be const)
+    operator const T &() const { return mCurrentValue; }
 
     void set(const T &src, bool fromReceive)
     {
