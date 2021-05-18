@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile:lib": "babel ../examples/minimal/js-src --out-dir ../examples/minimal/js-lib",
-    "compile:dist": "browserify ../examples/minimal/js-lib/pageHandler.js | uglifyjs -c -m -o ../examples/minimal/data/pageHandler.js",
+    "compile:lib": "babel ./src --out-dir ./lib",
+    "compile:dist": "browserify ./lib/pageHandler.js | uglifyjs -c -m -o ../examples/minimal/data/pageHandler.js",
     "compile:dist-safer": "browserify ../examples/minimal/js-lib/pageHandler.js | uglifyjs -c -m --keep-fnames -o ../examples/minimal/data/pageHandler.js",
+    "lint": "eslint ./src",
     "build": "npm run compile:lib && npm run compile:dist"
   },
   "author": "",
@@ -18,7 +19,7 @@
         "babelify",
         {
           "presets": [
-            "babel-preset-env"
+            "@babel/preset-env"
           ]
         }
       ]
@@ -27,9 +28,17 @@
   "devDependencies": {
     "@babel/cli": "^7.14.3",
     "@babel/core": "^7.14.3",
-    "@babel/node": "^7.14.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.14.2",
+    "@babel/preset-env": "^7.14.2",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb-babel": "^0.2.1",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
     "uglify-js": "^3.13.6"
   }
 }

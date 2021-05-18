@@ -1,0 +1,11 @@
+{
+  "extends": ["airbnb-base", "airbnb-babel"],
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "no-console": "off",
+    "no-plusplus": [2, { "allowForLoopAfterthoughts": true }],
+    "no-param-reassign": ["error", { "props": false }]
+  }
+}
