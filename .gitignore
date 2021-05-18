@@ -1,7 +1,7 @@
 .pio
 .vscode
 examples/minimal/minimal.ino.cpp
-
+examples/minimal/js-lib
 .DS_Store
 $RECYCLE.BIN/
 Thumbs.db

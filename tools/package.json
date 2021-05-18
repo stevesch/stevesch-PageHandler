@@ -1,0 +1,35 @@
+{
+  "name": "@stevesch/page-handler-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile:lib": "babel ../examples/minimal/js-src --out-dir ../examples/minimal/js-lib",
+    "compile:dist": "browserify ../examples/minimal/js-lib/pageHandler.js | uglifyjs -c -m -o ../examples/minimal/data/pageHandler.js",
+    "compile:dist-safer": "browserify ../examples/minimal/js-lib/pageHandler.js | uglifyjs -c -m --keep-fnames -o ../examples/minimal/data/pageHandler.js",
+    "build": "npm run compile:lib && npm run compile:dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "babel-preset-env"
+          ]
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
+    "@babel/node": "^7.14.2",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "uglify-js": "^3.13.6"
+  }
+}
