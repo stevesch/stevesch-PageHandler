@@ -1,6 +1,7 @@
 {
   "name": "stevesch-PageHandler",
-  "keywords": "html, reflection",
+  "version": "0.1.0",
+  "keywords": "html, reflection, web page, dashboard, dash, iot",
   "description": "Server with data reflection for Arduino and embedded applications",
   "repository":
   {
@@ -13,10 +14,13 @@
   "authors":
   {
     "name": "Stephen Schlueter",
-    "url": "",
+    "url": "https://github.com/stevesch",
     "maintainer": true
   },
   "dependencies": [
-    "https://github.com/me-no-dev/ESPAsyncWebServer.git"
+    "stevesch/stevesch-WiFiConnector",
+    "alanswx/ESPAsyncWiFiManager@^0.23",
+    "https://github.com/ul-gh/AsyncTCP.git",
+    "https://github.com/ul-gh/ESPAsyncWebServer.git"
   ]
 }
