@@ -1,12 +1,19 @@
 # stevesch-PageHandler
 
-This library provides automatic reflection of variables between an ESP32 microcontroller web server and the web clients displaying the HTML pages of that server.  The library is designed to have minimal setup and be easy to customize to suit your needs.
+In it's simplest use-case, this library lets you create a dashboard, hosted by your microcontroller, available on a LAN via Wi-Fi.
+
+Data to and from the microcontroller is updated in real-time (very responsive, with little lag, unlike many solutions).  The example sketch arranges controls and value displays as "cards" but can be customized however you see fit (customization relies only on some typical javascript and HTML that can be copied from the examples).
+
+Controls like switches can be used to turn on/off outputs from the microcontroller, sliders can be used to change analog values or ranges, and values received from the microcontroller can be displayed in various ways (numbers, meters, etc.).
+
+![Example Screencap](examples/minimal/example-minimal-screencap.jpg)
+
+
+The library provides automatic reflection of variables between an ESP32 microcontroller web server and the web clients displaying the HTML pages of that server.  The library is designed to have minimal setup and be easy to customize to suit your needs.
 
 The library example uses stevesch-WiFiConnector for simple wifi setup (with config portal), but other wifi intialization may be used as long as an AsyncEspWebServer object is provided to this library's setup routine.
 
-The example sketch serves a dynamic web page that has examples for cards that communicate variables to and from the ESP32 server, as well as real-time graphing capability:
-
-![Example Screencap](examples/minimal/example-minimal-screencap.jpg)
+The example sketch serves a dynamic web page that has examples for cards that communicate variables to and from the ESP32 server, as well as real-time graphing capability.
 
 # Building and Running
 
