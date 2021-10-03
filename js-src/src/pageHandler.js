@@ -13,6 +13,11 @@
   } else {
     // old browser!  TODO: polyfill?
   }
+  let varSource = new EventTarget();
+  // TODO: replace serverSource.addEventListener calles w/varSource.addEventListener,
+  // then route serverSource events to varSource--
+  // m = new MessageEvent(varName, {data: varValue});
+  // varSource.dispatchEvent(m);
 
   let quietIntervals = 0;
 

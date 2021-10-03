@@ -4,6 +4,7 @@
 #include <ESPAsyncWebServer.h>
 #include <functional>
 #include <map>
+#include <deque>
 
 // An HTML page should reference this script and execute the following (or equivalent) script:
 // <script>
@@ -61,6 +62,14 @@ namespace stevesch
       });
     }
 
+    // When running synchronously (the recommended default), received events are queued
+    // for processing during loop.
+    // If running asynchronously, received events are processed immediately and the queue is not used.
+    // Running asynchronously can use less memory, but keep in mind that values of registered variables
+    // can then change at any time (even within functions because the receiver is running on a separate
+    // thread), and their onChange callbacks run asynchronously (from a separate thread) as well.
+    void enableAsync(bool enable) { mEnableAsync = enable; }
+
   protected:
     void handleReloader(AsyncWebServerRequest *request);
     void handleRestart(AsyncWebServerRequest *request);
@@ -77,11 +86,19 @@ namespace stevesch
 
     void sendNamedValue(const char *name, const char *value);
 
+    void beginMultiMSg(String& msg);
+    void addToMultiMsg(String& msg, const char *name, const char *value);
+    void sendMultiMsg(String& msg);
+
     // Route /api/set?name=<var>&value=<value> to the proper function for variable assignment
     void receive(const String &name, const String &value);
 
     // very meta-- processor that tells the HTML what processors exist:
     String processReflectionList(const String &name);
+
+    // when running synchronously, received events are queued for processing during loop.
+    // if running asynchronously, recevied events are processed immediately and the queue is not used.
+    void processReceivedQueue();
 
     struct ProcRegistryEntry
     {
@@ -97,7 +114,15 @@ namespace stevesch
     std::map<String, RecvRegistryEntry> mReceiverRegistry;
 
     AsyncEventSource mEvents;
+
+    struct ReceivePair {
+      String name;
+      String value;
+    };
+    std::deque<ReceivePair> mReceivedQueue;
+
     long mRestartTime;
+    bool mEnableAsync;
   };
 
   // VarReflector replaces specified client HTML fields with the server variable value

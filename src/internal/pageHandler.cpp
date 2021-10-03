@@ -1,16 +1,23 @@
-#include "pageHandler.h"
-#include "reloader.h"
+#include <FreeRTOS.h>
 #include <SPIFFS.h>
+#include "reloader.h"
 // #include <pgmspace.h>   // for PROGMEM
+
+#include "pageHandler.h"
 
 // using namespace std::placeholders;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
+namespace
+{
+  SemaphoreHandle_t sReceiveQueueKey = xSemaphoreCreateMutex();
+}
+
 namespace stevesch
 {
 
-  PageHandler::PageHandler() : mEvents("/events"), mRestartTime(0)
+  PageHandler::PageHandler() : mEvents("/events"), mRestartTime(0), mEnableAsync(false)
   {
     // when serving an HTML file (index.html), replace REFL_LIST with
     // an array of registered variable names:
@@ -49,8 +56,26 @@ namespace stevesch
   {
   }
 
+  void PageHandler::processReceivedQueue()
+  {
+    std::deque<ReceivePair> queue;
+    xSemaphoreTake(sReceiveQueueKey, portMAX_DELAY);
+    if (mReceivedQueue.size()) {
+      std::swap(queue, mReceivedQueue);
+    }
+    xSemaphoreGive(sReceiveQueueKey);
+
+    while (queue.size()) {
+      const ReceivePair& data = queue.front();
+      receive(data.name, data.value);
+      queue.pop_front();
+    }
+  }
+
   void PageHandler::loop()
   {
+    processReceivedQueue();
+
     if (mRestartTime)
     {
       if (millis() >= mRestartTime)
@@ -195,7 +220,12 @@ namespace stevesch
     str.replace("%TITLE%", "Restarting...");
     str.replace("%MESSAGE%", "Restarting");
     request->send(200, "text/html", str);
-    mRestartTime = millis() + 1000;
+    long now = millis();
+    if ((mRestartTime != 0) && (now >= mRestartTime)) {
+      // force restart immediately-- loop may not be running
+      ESP.restart();
+    }
+    mRestartTime = now + 1000;
   }
 
   void PageHandler::handleCss(AsyncWebServerRequest *request)
@@ -234,7 +264,15 @@ namespace stevesch
         const String &nameStr = nameParam->value();
         // Serial.printf("handleSet: %s=%s\n", nameStr.c_str(), valueStr.c_str());
         request->send(200, "text/html", valueStr.c_str());
-        receive(nameStr, valueStr);
+        if (mEnableAsync) {
+          receive(nameStr, valueStr);
+        }
+        else
+        {
+          xSemaphoreTake(sReceiveQueueKey, portMAX_DELAY);
+          mReceivedQueue.emplace_back(ReceivePair { nameStr, valueStr });
+          xSemaphoreGive(sReceiveQueueKey);
+        }
         return;
       }
       request->send(406, "text/html", "value required");
@@ -267,6 +305,27 @@ namespace stevesch
     return String();
   }
 
+  void PageHandler::beginMultiMSg(String& msg) {
+    msg = "";
+  }
+
+  void PageHandler::addToMultiMsg(String& msg, const char *name, const char *value)
+  {
+    const char kValueStart = 0x02;  // start of text
+    const char kMsgEnd = 0x03; // end of text
+    msg += name;
+    msg += kValueStart;
+    msg += value;
+    msg += kMsgEnd;
+  }
+
+  void PageHandler::sendMultiMsg(String& msg) {
+    if (msg.length() > 0) {
+      mEvents.send(msg.c_str(), "_M_", millis());
+      msg = "";
+    }
+  }
+
   void PageHandler::sendNamedValue(const char *name, const char *value)
   {
     mEvents.send(value, name, millis());
@@ -291,6 +350,7 @@ namespace stevesch
     if (!stevesch::PageHandler::processAndSendRegisteredValue(name))
     {
       // it wasn't registered, so reflect received value (unmodified) back to all clients
+      // Serial.printf("Unregistered reflect: [%d]=[%d]\n", name.length(), value.length());
       // Serial.printf("Unregistered reflect: %s=%s\n", name.c_str(), value.c_str());
       sendNamedValue(name.c_str(), value.c_str());
     }
