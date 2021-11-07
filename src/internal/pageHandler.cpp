@@ -2,6 +2,7 @@
 #include <SPIFFS.h>
 #include "reloader.h"
 // #include <pgmspace.h>   // for PROGMEM
+#include <base64.hpp>
 
 #include "pageHandler.h"
 
@@ -75,6 +76,7 @@ namespace stevesch
   void PageHandler::loop()
   {
     processReceivedQueue();
+    flushSendQueue();
 
     if (mRestartTime)
     {
@@ -99,8 +101,8 @@ namespace stevesch
     if (value != entry.lastSentValue)
     {
       entry.lastSentValue = value;
-      // Serial.printf("sendNamedValue %s=%s\n", name.c_str(), value.c_str());
-      sendNamedValue(name.c_str(), value.c_str());
+      // Serial.printf("queueNamedValue %s=%s\n", name.c_str(), value.c_str());
+      queueNamedValue(name.c_str(), value.c_str());
     }
     return true;
   }
@@ -133,7 +135,7 @@ namespace stevesch
       if (value != entry.lastSentValue)
       {
         entry.lastSentValue = value;
-        sendNamedValue(name.c_str(), value.c_str());
+        queueNamedValue(name.c_str(), value.c_str());
         if (--numBeforeYield <= 0) {
           yield();
           numBeforeYield = kYieldPer;
@@ -167,7 +169,7 @@ namespace stevesch
       if (value != entry.lastSentValue)
       {
         entry.lastSentValue = value;
-        sendNamedValue(name.c_str(), value.c_str());
+        queueNamedValue(name.c_str(), value.c_str());
         --numToSend;
       }
 
@@ -305,30 +307,52 @@ namespace stevesch
     return String();
   }
 
-  void PageHandler::beginMultiMSg(String& msg) {
-    msg = "";
-  }
+  // void PageHandler::sendNamedValue(const char *name, const char *value)
+  // {
+  //   mEvents.send(value, name, millis());
+  // }
 
-  void PageHandler::addToMultiMsg(String& msg, const char *name, const char *value)
+  void PageHandler::queueNamedValue(const char *name, const char *value)
   {
-    const char kValueStart = 0x02;  // start of text
-    const char kMsgEnd = 0x03; // end of text
-    msg += name;
-    msg += kValueStart;
-    msg += value;
-    msg += kMsgEnd;
-  }
+    size_t l0 = strlen(name);
+    size_t l1 = strlen(value);
+    size_t l0_encoded = encode_base64_length(l0);
+    size_t l1_encoded = encode_base64_length(l1);
+    char str0[l0_encoded + 1];
+    char str1[l1_encoded + 1];
 
-  void PageHandler::sendMultiMsg(String& msg) {
-    if (msg.length() > 0) {
-      mEvents.send(msg.c_str(), "_M_", millis());
-      msg = "";
+    const size_t origQueueLength = mSendQueue.length();
+    if (origQueueLength > 0)
+    {
+      constexpr size_t kMaxSendQueueChars = 1024;
+      constexpr size_t overhead = 2; // for , and potential ;
+      const size_t finalLength = origQueueLength + l0_encoded + l1_encoded + overhead;
+      if (finalLength > kMaxSendQueueChars)
+      {
+        flushSendQueue();
+      }
+      else
+      {
+        mSendQueue += ';';
+      }
     }
+
+    unsigned char* p0 = (unsigned char*)(const_cast<char*>(name));
+    unsigned char* p1 = (unsigned char*)(const_cast<char*>(value));
+    encode_base64(p0, l0, (unsigned char*)str0);
+    encode_base64(p1, l1, (unsigned char*)str1);
+
+    mSendQueue += str0;
+    mSendQueue += ',';
+    mSendQueue += str1;
   }
 
-  void PageHandler::sendNamedValue(const char *name, const char *value)
+  void PageHandler::flushSendQueue()
   {
-    mEvents.send(value, name, millis());
+    if (mSendQueue.length() > 0) {
+      mEvents.send(mSendQueue.c_str(), "_M_", millis());
+      mSendQueue.clear();
+    }
   }
 
   void PageHandler::receive(const String &name, const String &value)
@@ -352,7 +376,7 @@ namespace stevesch
       // it wasn't registered, so reflect received value (unmodified) back to all clients
       // Serial.printf("Unregistered reflect: [%d]=[%d]\n", name.length(), value.length());
       // Serial.printf("Unregistered reflect: %s=%s\n", name.c_str(), value.c_str());
-      sendNamedValue(name.c_str(), value.c_str());
+      queueNamedValue(name.c_str(), value.c_str());
     }
   }
 

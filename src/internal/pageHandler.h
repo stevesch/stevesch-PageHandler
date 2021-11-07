@@ -84,11 +84,13 @@ namespace stevesch
     // e.g. replace %FOO% with return value of function registered for "FOO"
     String processField(const String &var);
 
-    void sendNamedValue(const char *name, const char *value);
+    // send/queue are protected because "last sent value" must be updated
+    // outside of these functions (by caller).  This is guaranteed by
+    // all internal uses of these calls.
+    // void sendNamedValue(const char *name, const char *value);
+    void queueNamedValue(const char *name, const char *value);
 
-    void beginMultiMSg(String& msg);
-    void addToMultiMsg(String& msg, const char *name, const char *value);
-    void sendMultiMsg(String& msg);
+    void flushSendQueue();
 
     // Route /api/set?name=<var>&value=<value> to the proper function for variable assignment
     void receive(const String &name, const String &value);
@@ -120,6 +122,9 @@ namespace stevesch
       String value;
     };
     std::deque<ReceivePair> mReceivedQueue;
+
+    // accumulated messages to be sent
+    String mSendQueue;
 
     long mRestartTime;
     bool mEnableAsync;

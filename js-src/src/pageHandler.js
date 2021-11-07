@@ -13,13 +13,27 @@
   } else {
     // old browser!  TODO: polyfill?
   }
-  let varSource = new EventTarget();
-  // TODO: replace serverSource.addEventListener calles w/varSource.addEventListener,
-  // then route serverSource events to varSource--
-  // m = new MessageEvent(varName, {data: varValue});
-  // varSource.dispatchEvent(m);
+  const varSource = new EventTarget();
 
   let quietIntervals = 0;
+
+  // msgBlock is semicolon-separated strings of var/value messages.
+  // Each strKv is a comma-separated pair of base64-encoded strings,
+  // with the [0] being the variable name, and [1] being the new variable value.
+  function processVarsMessage(msgBlock) {
+    const strKvPairs = msgBlock.split(';');
+    strKvPairs.forEach((strKv) => {
+      const kv = strKv.split(',');
+      const varName = atob(kv[0]);
+      const varValue = atob(kv[1]);
+      const msg = new MessageEvent(varName, { data: varValue });
+      varSource.dispatchEvent(msg);
+    });
+  }
+
+  function handleVarsMessage(e) {
+    processVarsMessage(e.data);
+  }
 
   function evElement(source, name) {
     // replace innerHTML field of elements w/data-varinner attribute matching this event
@@ -294,7 +308,7 @@
       const dateNow = new Date(t); // TODO: use value from data?
       recordDataSample(dateNow, datay);
     }
-    serverSource.addEventListener(varName, onDataEvent, false);
+    varSource.addEventListener(varName, onDataEvent, false);
   }
 
   function attachCharts() {
@@ -356,6 +370,11 @@
     this.checked = toBool(e.data);
   }
 
+  function getAllReceived(e) {
+    console.log(`### all >>> ${e.value}`);
+    processVarsMessage(e.value);
+  }
+
   // @global reflections: Provided by index.html.
   // Used to register processor reflection variables, e.g. TEMPERATURE,
   // HUMIDITY, FLOATVALUE1, etc.
@@ -363,6 +382,15 @@
   // (contents is dynamically populated upon send of index from server)
   // window.reflections = ["%REFL_LIST%"]; // NOTE: must use double-quotes
   function initPageHandler() {
+    function requestAllValues() {
+      const xhr = new XMLHttpRequest();
+      const s = '/api/getall';
+      xhr.addEventListener('load', getAllReceived, false);
+      // xhr.onload = ;
+      xhr.open('GET', s, true);
+      xhr.send();
+    }
+
     function sendSetValue(name, value) {
       const xhr = new XMLHttpRequest();
       let s = '/api/set?name=';
@@ -461,6 +489,8 @@
       //   }
       // }, false);
 
+      serverSource.addEventListener('_M_', handleVarsMessage);
+
       serverSource.addEventListener('message', (e) => {
         quietIntervals = 0;
         console.log('message', e.data);
@@ -477,7 +507,7 @@
       });
 
       refls.forEach((varName) => {
-        evElement(serverSource, varName);
+        evElement(varSource, varName);
       });
 
       // add event listeners for inputs, e.g. sliders, that
@@ -508,7 +538,7 @@
           }
         }
         console.log(`Adding watcher for ${name}`);
-        serverSource.addEventListener(name, (e) => {
+        varSource.addEventListener(name, (e) => {
           quietIntervals = 0;
           // console.log("Watcher " + name + " = " + e.data);
           fn.call(item, e);
@@ -572,5 +602,7 @@
         }
       }
     }, reloadCheckInterval);
+
+    requestAllValues();
   }
 })();
