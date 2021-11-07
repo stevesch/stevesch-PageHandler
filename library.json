@@ -1,6 +1,6 @@
 {
   "name": "stevesch-PageHandler",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "keywords": "html, reflection, web page, dashboard, dash, iot",
   "description": "Server with data reflection for Arduino and embedded applications",
   "repository":

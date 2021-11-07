@@ -44,6 +44,10 @@ namespace stevesch
     void processAndSendUpdatedServerValues();               // send all changed variables
     int processAndSendUpdatedServerValues(int maxToSend, int startHint);
 
+    // bundleAllServerValues: like processAndSendUpdatedServerValues, but encodes all variables
+    // into a single string message block (regardless of whether they have changed or not).
+    void bundleAllServerValues(String& msgBlockOut);
+
     int snoopUpdatedServerValues() const;
 
     void registerProcessor(const String &var, procFn_t fn);
@@ -76,6 +80,7 @@ namespace stevesch
     void handleCss(AsyncWebServerRequest *request);
     void handleJs(AsyncWebServerRequest *request);
     void handleIndex(AsyncWebServerRequest *request);
+    void handleGetAll(AsyncWebServerRequest *request);
     void handleSet(AsyncWebServerRequest *request);
     void handleConnectClient(AsyncEventSourceClient *client);
     void handlePageNotFound(AsyncWebServerRequest *request);
@@ -89,6 +94,7 @@ namespace stevesch
     // all internal uses of these calls.
     // void sendNamedValue(const char *name, const char *value);
     void queueNamedValue(const char *name, const char *value);
+    void appendNamedValue(String& msgBlockOut, const char *name, const char *value);
 
     void flushSendQueue();
 

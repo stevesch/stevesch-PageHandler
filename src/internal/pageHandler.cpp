@@ -41,6 +41,7 @@ namespace stevesch
   {
     // api functions for communication from client
     server.on("/api/set", HTTP_GET, std::bind(&PageHandler::handleSet, this, _1));
+    server.on("/api/getall", HTTP_GET, std::bind(&PageHandler::handleGetAll, this, _1));
     server.on("/api/reloader", std::bind(&PageHandler::handleReloader, this, _1)); // for testing reloader page
     server.on("/api/restart", std::bind(&PageHandler::handleRestart, this, _1));   // for testing reloader page
 
@@ -121,6 +122,25 @@ namespace stevesch
       }
     }
     return numDirtyEntries;
+  }
+
+  void PageHandler::bundleAllServerValues(String& msgBlockOut)
+  {
+    const int kYieldPer = 16;
+    int numBeforeYield = kYieldPer;
+    for (auto &&it : mProcessorRegistry)
+    {
+      ProcRegistryEntry &entry = it.second;
+      const String &name = it.first;
+      String value = (entry.procFn)(name);
+
+      appendNamedValue(msgBlockOut, name.c_str(), value.c_str());
+
+      if (--numBeforeYield <= 0) {
+        yield();
+        numBeforeYield = kYieldPer;
+      }
+    }
   }
 
   void PageHandler::processAndSendUpdatedServerValues()
@@ -283,6 +303,13 @@ namespace stevesch
     request->send(406, "text/html", "name required");
   }
 
+  void PageHandler::handleGetAll(AsyncWebServerRequest *request)
+  {
+    String msgBlock;
+    bundleAllServerValues(msgBlock);
+    request->send(200, "text/html", msgBlock.c_str());
+  }
+
   // void PageHandler::handleConnectClient(AsyncEventSourceClient *client)
   // {
   //   Serial.printf("Client connected, lastId: %u\n", client->lastId());
@@ -312,21 +339,51 @@ namespace stevesch
   //   mEvents.send(value, name, millis());
   // }
 
+  static void encodeVar(String& msgBlockOut,
+    const char* name, size_t lenNameEncoded,
+    const char* value, size_t lenValueEncoded)
+  {
+    char strBase64Name[lenNameEncoded + 1];
+    char strBase64Value[lenValueEncoded + 1];
+    unsigned char* p0 = (unsigned char*)(const_cast<char*>(name));
+    unsigned char* p1 = (unsigned char*)(const_cast<char*>(value));
+    encode_base64(p0, lenNameEncoded, (unsigned char*)strBase64Name);
+    encode_base64(p1, lenValueEncoded, (unsigned char*)strBase64Value);
+
+    msgBlockOut += strBase64Name;
+    msgBlockOut += ',';
+    msgBlockOut += strBase64Value;
+  }
+
+  void PageHandler::appendNamedValue(String& msgBlockOut, const char *name, const char *value)
+  {
+    size_t lenName = strlen(name);
+    size_t lenValue = strlen(value);
+    size_t lenNameEncoded = encode_base64_length(lenName);
+    size_t lenValueEncoded = encode_base64_length(lenValue);
+
+    const size_t origQueueLength = msgBlockOut.length();
+    if (origQueueLength > 0)
+    {
+      msgBlockOut += ';';
+    }
+
+    encodeVar(msgBlockOut, name, lenNameEncoded, value, lenValueEncoded);
+  }
+
   void PageHandler::queueNamedValue(const char *name, const char *value)
   {
-    size_t l0 = strlen(name);
-    size_t l1 = strlen(value);
-    size_t l0_encoded = encode_base64_length(l0);
-    size_t l1_encoded = encode_base64_length(l1);
-    char str0[l0_encoded + 1];
-    char str1[l1_encoded + 1];
+    size_t lenName = strlen(name);
+    size_t lenValue = strlen(value);
+    size_t lenNameEncoded = encode_base64_length(lenName);
+    size_t lenValueEncoded = encode_base64_length(lenValue);
 
     const size_t origQueueLength = mSendQueue.length();
     if (origQueueLength > 0)
     {
       constexpr size_t kMaxSendQueueChars = 1024;
       constexpr size_t overhead = 2; // for , and potential ;
-      const size_t finalLength = origQueueLength + l0_encoded + l1_encoded + overhead;
+      const size_t finalLength = origQueueLength + lenNameEncoded + lenValueEncoded + overhead;
       if (finalLength > kMaxSendQueueChars)
       {
         flushSendQueue();
@@ -337,14 +394,7 @@ namespace stevesch
       }
     }
 
-    unsigned char* p0 = (unsigned char*)(const_cast<char*>(name));
-    unsigned char* p1 = (unsigned char*)(const_cast<char*>(value));
-    encode_base64(p0, l0, (unsigned char*)str0);
-    encode_base64(p1, l1, (unsigned char*)str1);
-
-    mSendQueue += str0;
-    mSendQueue += ',';
-    mSendQueue += str1;
+    encodeVar(mSendQueue, name, lenNameEncoded, value, lenValueEncoded);
   }
 
   void PageHandler::flushSendQueue()
