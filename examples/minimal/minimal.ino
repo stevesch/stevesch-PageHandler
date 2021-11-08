@@ -8,7 +8,7 @@ using stevesch::VarReflector;
 
 // timing of automatic variable sending
 long lastAutoSend = -1;
-constexpr long kAutoSendPeriod = 500;
+constexpr long kAutoSendPeriod = 250;
 
 // some simple timing and log output
 long lastLog = -1;

@@ -96,7 +96,8 @@ namespace stevesch
     void queueNamedValue(const char *name, const char *value);
     void appendNamedValue(String& msgBlockOut, const char *name, const char *value);
 
-    void flushSendQueue();
+    void _flushSendQueue(); // assumes semaphore already acquired
+    void flushSendQueue(); // acquires semaphore
 
     // Route /api/set?name=<var>&value=<value> to the proper function for variable assignment
     void receive(const String &name, const String &value);

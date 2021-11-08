@@ -371,8 +371,9 @@
   }
 
   function getAllReceived(e) {
-    console.log(`### all >>> ${e.value}`);
-    processVarsMessage(e.value);
+    const msgBlock = e.currentTarget.response;
+    // console.log(`### all >>> ${msgBlock}`);
+    processVarsMessage(msgBlock);
   }
 
   // @global reflections: Provided by index.html.

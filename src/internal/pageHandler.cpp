@@ -13,6 +13,7 @@ using std::placeholders::_2;
 namespace
 {
   SemaphoreHandle_t sReceiveQueueKey = xSemaphoreCreateMutex();
+  SemaphoreHandle_t sSendQueueKey = xSemaphoreCreateMutex();
 }
 
 namespace stevesch
@@ -339,20 +340,46 @@ namespace stevesch
   //   mEvents.send(value, name, millis());
   // }
 
-  static void encodeVar(String& msgBlockOut,
-    const char* name, size_t lenNameEncoded,
-    const char* value, size_t lenValueEncoded)
+  static void encodeStringDynamic(String& msgBlockOut, const char* str, size_t len, size_t lenEncoded)
   {
-    char strBase64Name[lenNameEncoded + 1];
-    char strBase64Value[lenValueEncoded + 1];
-    unsigned char* p0 = (unsigned char*)(const_cast<char*>(name));
-    unsigned char* p1 = (unsigned char*)(const_cast<char*>(value));
-    encode_base64(p0, lenNameEncoded, (unsigned char*)strBase64Name);
-    encode_base64(p1, lenValueEncoded, (unsigned char*)strBase64Value);
+    char *strBase64 = new char[lenEncoded + 1];
+    unsigned char* p0 = (unsigned char*)(const_cast<char*>(str));
+    encode_base64(p0, len, (unsigned char*)strBase64);
+    msgBlockOut += strBase64;
+    delete[] strBase64;
+  }
 
-    msgBlockOut += strBase64Name;
+  static void encodeStringStack(String& msgBlockOut, const char* str, size_t len, size_t lenEncoded)
+  {
+    char strBase64[lenEncoded + 1];
+    unsigned char* p0 = (unsigned char*)(const_cast<char*>(str));
+    encode_base64(p0, len, (unsigned char*)strBase64);
+    msgBlockOut += strBase64;
+  }
+
+  static void encodeString(String& msgBlockOut, const char* str, size_t len, size_t lenEncoded)
+  {
+    // dynamic allocation is used (rather than stack space) if the encoded
+    // string is at least this long:
+    const size_t kStackStringCutoff = 256;
+
+    if (lenEncoded < kStackStringCutoff)
+    {
+      encodeStringStack(msgBlockOut, str, len, lenEncoded);
+    }
+    else
+    {
+      encodeStringDynamic(msgBlockOut, str, len, lenEncoded);
+    }
+  }
+
+  static void encodeVar(String& msgBlockOut,
+    const char* name, size_t lenName, size_t lenNameEncoded,
+    const char* value, size_t lenValue, size_t lenValueEncoded)
+  {
+    encodeString(msgBlockOut, name, lenName, lenNameEncoded);
     msgBlockOut += ',';
-    msgBlockOut += strBase64Value;
+    encodeString(msgBlockOut, value, lenValue, lenValueEncoded);
   }
 
   void PageHandler::appendNamedValue(String& msgBlockOut, const char *name, const char *value)
@@ -368,7 +395,7 @@ namespace stevesch
       msgBlockOut += ';';
     }
 
-    encodeVar(msgBlockOut, name, lenNameEncoded, value, lenValueEncoded);
+    encodeVar(msgBlockOut, name, lenName, lenNameEncoded, value, lenValue, lenValueEncoded);
   }
 
   void PageHandler::queueNamedValue(const char *name, const char *value)
@@ -378,6 +405,7 @@ namespace stevesch
     size_t lenNameEncoded = encode_base64_length(lenName);
     size_t lenValueEncoded = encode_base64_length(lenValue);
 
+    xSemaphoreTake(sSendQueueKey, portMAX_DELAY);
     const size_t origQueueLength = mSendQueue.length();
     if (origQueueLength > 0)
     {
@@ -386,7 +414,7 @@ namespace stevesch
       const size_t finalLength = origQueueLength + lenNameEncoded + lenValueEncoded + overhead;
       if (finalLength > kMaxSendQueueChars)
       {
-        flushSendQueue();
+        _flushSendQueue();
       }
       else
       {
@@ -394,15 +422,23 @@ namespace stevesch
       }
     }
 
-    encodeVar(mSendQueue, name, lenNameEncoded, value, lenValueEncoded);
+    encodeVar(mSendQueue, name, lenName, lenNameEncoded, value, lenValue, lenValueEncoded);
+    xSemaphoreGive(sSendQueueKey);
   }
 
-  void PageHandler::flushSendQueue()
+  void PageHandler::_flushSendQueue()
   {
     if (mSendQueue.length() > 0) {
       mEvents.send(mSendQueue.c_str(), "_M_", millis());
       mSendQueue.clear();
     }
+  }
+
+  void PageHandler::flushSendQueue()
+  {
+    xSemaphoreTake(sSendQueueKey, portMAX_DELAY);
+    _flushSendQueue();
+    xSemaphoreGive(sSendQueueKey);
   }
 
   void PageHandler::receive(const String &name, const String &value)
