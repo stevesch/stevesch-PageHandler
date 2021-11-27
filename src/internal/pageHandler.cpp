@@ -337,7 +337,10 @@ namespace stevesch
 
   // void PageHandler::sendNamedValue(const char *name, const char *value)
   // {
-  //   mEvents.send(value, name, millis());
+  //   if (WiFi.isConnected())
+  //   {
+  //     mEvents.send(value, name, millis());
+  //   }
   // }
 
   static void encodeStringDynamic(String& msgBlockOut, const char* str, size_t len, size_t lenEncoded)
@@ -429,7 +432,11 @@ namespace stevesch
   void PageHandler::_flushSendQueue()
   {
     if (mSendQueue.length() > 0) {
-      mEvents.send(mSendQueue.c_str(), "_M_", millis());
+      // if not connected, we don't even try to actually send:
+      if (WiFi.isConnected())
+      {
+        mEvents.send(mSendQueue.c_str(), "_M_", millis());
+      }
       mSendQueue.clear();
     }
   }
