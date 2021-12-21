@@ -593,13 +593,15 @@
     setInterval(() => {
       quietIntervals += 1;
       if (quietIntervals > 2) {
-        console.log(`No communication from server for ${quietIntervals * reloadCheckInterval * 0.001} seconds`);
-        // in case of unresponsive server, attempt reload-- might be updating
-        if (quietIntervals > 3) {
-          quietIntervals = 0;
+        if (!window.db) {
+          console.log(`No communication from server for ${quietIntervals * reloadCheckInterval * 0.001} seconds`);
+          // in case of unresponsive server, attempt reload-- might be updating
+          if (quietIntervals > 3) {
+            quietIntervals = 0;
 
-          console.log('Reloading page...');
-          window.location.reload();
+            console.log('Reloading page...');
+            window.location.reload();
+          }
         }
       }
     }, reloadCheckInterval);
