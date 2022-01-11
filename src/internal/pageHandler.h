@@ -36,7 +36,10 @@ namespace stevesch
     typedef std::function<void(const String &, const String &)> recvFn_t;
 
     void setup();
-    void connect(AsyncWebServer &server);
+
+    // default page is "/index.html" if not specified
+    void connect(AsyncWebServer &server, const char* defaultPage=0);
+
     void disconnect(AsyncWebServer &server);
     void loop();
 
@@ -77,13 +80,16 @@ namespace stevesch
   protected:
     void handleReloader(AsyncWebServerRequest *request);
     void handleRestart(AsyncWebServerRequest *request);
-    void handleCss(AsyncWebServerRequest *request);
-    void handleJs(AsyncWebServerRequest *request);
     void handleIndex(AsyncWebServerRequest *request);
+    // void handleCss(AsyncWebServerRequest *request);
+    // void handleJs(AsyncWebServerRequest *request);
+    // void handleRoot(AsyncWebServerRequest *request);
     void handleGetAll(AsyncWebServerRequest *request);
     void handleSet(AsyncWebServerRequest *request);
     void handleConnectClient(AsyncEventSourceClient *client);
     void handlePageNotFound(AsyncWebServerRequest *request);
+
+    bool processFileRequest(AsyncWebServerRequest *request, const char* urlOverride=0);
 
     // Replace placeholders with values,
     // e.g. replace %FOO% with return value of function registered for "FOO"
@@ -132,6 +138,7 @@ namespace stevesch
 
     // accumulated messages to be sent
     String mSendQueue;
+    String mDefaultPage;
 
     long mRestartTime;
     bool mEnableAsync;

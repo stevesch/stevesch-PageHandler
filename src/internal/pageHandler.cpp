@@ -38,8 +38,22 @@ namespace stevesch
     }
   }
 
-  void PageHandler::connect(AsyncWebServer &server)
+  bool filterHtml(AsyncWebServerRequest *request) {
+    String lc = request->url();
+    lc.toLowerCase();
+    return lc.endsWith(".html") || lc.endsWith(".htm");
+  }
+
+  bool filterServeDirect(AsyncWebServerRequest *request) {
+    String lc = request->url();
+    lc.toLowerCase();
+    return (lc.endsWith(".js") || lc.endsWith(".css"));
+  }
+
+  void PageHandler::connect(AsyncWebServer &server, const char* defaultPage)
   {
+    mDefaultPage = defaultPage ? defaultPage : "";
+
     // api functions for communication from client
     server.on("/api/set", HTTP_GET, std::bind(&PageHandler::handleSet, this, _1));
     server.on("/api/getall", HTTP_GET, std::bind(&PageHandler::handleGetAll, this, _1));
@@ -47,9 +61,20 @@ namespace stevesch
     server.on("/api/restart", std::bind(&PageHandler::handleRestart, this, _1));   // for testing reloader page
 
     // serve index page, css, js, etc.
+
+    // js and css files get served without modification:
+    server.serveStatic("/", SPIFFS, "/").setFilter(filterServeDirect);
+
+    // HTML files go through template processor:
+    server.serveStatic("/", SPIFFS, "/")
+      .setTemplateProcessor(std::bind(&PageHandler::processField, this, _1))
+      .setFilter(filterHtml);
+
+    // root get redirected to index file:
     server.on("/", HTTP_GET, std::bind(&PageHandler::handleIndex, this, _1));
-    server.on("/style.css", HTTP_GET, std::bind(&PageHandler::handleCss, this, _1));
-    server.on("/pageHandler.js", HTTP_GET, std::bind(&PageHandler::handleJs, this, _1));
+
+    // server.on("/style.css", HTTP_GET, std::bind(&PageHandler::handleCss, this, _1));
+    // server.on("/pageHandler.js", HTTP_GET, std::bind(&PageHandler::handleJs, this, _1));
     server.onNotFound(std::bind(&PageHandler::handlePageNotFound, this, _1));
 
     server.addHandler(&mEvents);
@@ -251,27 +276,89 @@ namespace stevesch
     mRestartTime = now + 1000;
   }
 
-  void PageHandler::handleCss(AsyncWebServerRequest *request)
-  {
-    request->send(SPIFFS, "/style.css", "text/css");
-  }
-
-  void PageHandler::handleJs(AsyncWebServerRequest *request)
-  {
-    request->send(SPIFFS, "/pageHandler.js", "text/javascript");
-  }
-
   void PageHandler::handleIndex(AsyncWebServerRequest *request)
   {
     const char *path = "/index.html";
+    if (mDefaultPage.length()) {
+      path = mDefaultPage.c_str();
+    }
+
     if (SPIFFS.exists(path))
     {
       request->send(SPIFFS, path, "text/html", false, std::bind(&PageHandler::processField, this, _1));
     }
     else
     {
+      // if the index file does not exist, it's possible an update is inprogress--
+      // assume that's the case and display the reloader/update-in-progress page:
       handleReloader(request);
     }
+  }
+
+  // void PageHandler::handleCss(AsyncWebServerRequest *request)
+  // {
+  //   request->send(SPIFFS, "/style.css", "text/css");
+  // }
+
+  // void PageHandler::handleJs(AsyncWebServerRequest *request)
+  // {
+  //   request->send(SPIFFS, "/pageHandler.js", "text/javascript");
+  // }
+
+  // void PageHandler::handleRoot(AsyncWebServerRequest *request)
+  // {
+  //   if (processFileRequest(request)) {
+  //     return;
+  //   }
+  //   const char *path = "/index.html";
+  //   if (processFileRequest(request, path)) {
+  //     return;
+  //   }
+
+  //   // if (SPIFFS.exists(path))
+  //   // {
+  //   //   request->send(SPIFFS, path, "text/html", false, std::bind(&PageHandler::processField, this, _1));
+  //   // }
+  //   handleReloader(request);
+  // }
+
+
+  bool PageHandler::processFileRequest(AsyncWebServerRequest *request, const char* urlOverride)
+  {
+    bool handled = false;
+
+    String contentType;
+    String path;
+    if (urlOverride) {
+      path = urlOverride;
+    }
+    else {
+      path = request->url();
+    }
+
+    if (path.startsWith("/"))
+    {
+      String lc = path;
+      lc.toLowerCase();
+      if (lc.endsWith(".htm") || lc.endsWith(".html")) {
+        if (SPIFFS.exists(path)) {
+          contentType = "text/html";
+          request->send(SPIFFS, path, contentType, false, std::bind(&PageHandler::processField, this, _1));
+          handled = true;
+        }
+      } else if (lc.endsWith(".js")) {
+        if (SPIFFS.exists(path)) {
+          request->send(SPIFFS, path, "text/javascript");
+          handled = true;
+        }
+      } else if (lc.endsWith(".css")) {
+        if (SPIFFS.exists(path)) {
+          request->send(SPIFFS, path, "text/css");
+          handled = true;
+        }
+      }
+    }
+    return handled;
   }
 
   void PageHandler::handleSet(AsyncWebServerRequest *request)
@@ -319,8 +406,12 @@ namespace stevesch
   // void handlePageNotFound(AsyncWebServerRequest* request);
   void PageHandler::handlePageNotFound(AsyncWebServerRequest *request)
   {
-    // String str = "Callback: handlePageNotFound";
-    // Serial.println(str);
+    Serial.printf("### Request not found.  url: %s\n", request->url().c_str());
+    // size_t args = request->args();
+    // Serial.printf("# args: %d\n", request->args());
+    // for (size_t i = 0; i < args; ++i) {
+    //   Serial.printf("# [%d]: %s\n", i, request->arg(i).c_str());
+    // }
     request->redirect("/");
   }
 
