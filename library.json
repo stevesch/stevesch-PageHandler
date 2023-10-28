@@ -20,7 +20,7 @@
   "dependencies": [
     "stevesch/stevesch-WiFiConnector",
     "alanswx/ESPAsyncWiFiManager@^0.23",
-    "densaugeo/base64@^1.2.0",
+    "densaugeo/base64@^1.4.0",
     "https://github.com/ul-gh/AsyncTCP.git",
     "https://github.com/ul-gh/ESPAsyncWebServer.git"
   ]

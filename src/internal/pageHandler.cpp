@@ -1,4 +1,4 @@
-#include <FreeRTOS.h>
+// #include <FreeRTOS.h>
 #include <SPIFFS.h>
 #include "reloader.h"
 // #include <pgmspace.h>   // for PROGMEM
@@ -14,11 +14,54 @@ namespace
 {
   SemaphoreHandle_t sReceiveQueueKey = xSemaphoreCreateMutex();
   SemaphoreHandle_t sSendQueueKey = xSemaphoreCreateMutex();
+
+  // compare lower-case extensions
+  bool shouldServeDirect(const String& ext) {
+    if (!ext.length()) {
+      return false;
+    }
+    return (
+      (ext == "js") ||
+      (ext == "css") ||
+      (ext == "png") ||
+      (ext == "jpg") ||
+      (ext == "jpeg") ||
+      (ext == "gif") ||
+      (ext == "ico")
+    );
+  }
+
+  inline bool isHtmlExtension(const String& ext) {
+    return (
+      (ext == "html") ||
+      (ext == "htm")
+    );
+  }
+
+  // returns lowercase characters after the last dot (excluding dot)
+  // (dot only counts if after the last slash)
+  String getExtension(const String& url) {
+    int n = url.length() - 1;
+    // find last dot
+    while (n >= 0) {
+      char ch = url.charAt(n);
+      if (ch == '.') {
+        String ext = url.substring(n + 1);
+        ext.toLowerCase();
+        return ext;
+      }
+      if (ch == '/') {
+        // found separator before dot-- no extension
+        break;
+      }
+      --n;
+    }
+    return "";
+  }
 }
 
 namespace stevesch
 {
-
   PageHandler::PageHandler() : mEvents("/events"), mRestartTime(0), mEnableAsync(false)
   {
     // when serving an HTML file (index.html), replace REFL_LIST with
@@ -39,15 +82,13 @@ namespace stevesch
   }
 
   bool filterHtml(AsyncWebServerRequest *request) {
-    String lc = request->url();
-    lc.toLowerCase();
-    return lc.endsWith(".html") || lc.endsWith(".htm");
+    String ext = getExtension(request->url());
+    return isHtmlExtension(ext);
   }
 
   bool filterServeDirect(AsyncWebServerRequest *request) {
-    String lc = request->url();
-    lc.toLowerCase();
-    return (lc.endsWith(".js") || lc.endsWith(".css"));
+    String ext = getExtension(request->url());
+    return shouldServeDirect(ext);
   }
 
   void PageHandler::connect(AsyncWebServer &server, const char* defaultPage)
