@@ -201,6 +201,11 @@ namespace stevesch
       const String &name = it.first;
       String value = (entry.procFn)(name);
 
+      const size_t origQueueLength = msgBlockOut.length();
+      if (origQueueLength > 0)
+      {
+        msgBlockOut += ';';
+      }
       appendNamedValue(msgBlockOut, name.c_str(), value.c_str());
 
       if (--numBeforeYield <= 0) {
@@ -437,6 +442,95 @@ namespace stevesch
     String msgBlock;
     bundleAllServerValues(msgBlock);
     request->send(200, "text/html", msgBlock.c_str());
+
+    // String msgBlock;
+    // auto&& itBegin = mProcessorRegistry.begin();
+    // auto&& itEnd = mProcessorRegistry.end();
+    
+    // int startIndex = 0;
+    // const int totalNum = mProcessorRegistry.size();
+    // auto it = itBegin;
+
+    // bool first = true;
+
+    // AsyncWebServerResponse* response = request->beginChunkedResponse(
+    //   "text/html",
+    //   [&](uint8_t* buffer, size_t maxLen, size_t alreadySent) {
+    //     int bytesFilled = 0;
+    //     int available = maxLen;
+    //     uint8_t* outPtr = buffer;
+    //     while (available > 0) {
+    //       if (!msgBlock.length()) {
+    //         if (it == itEnd) {
+    //           break; // done
+    //         }
+    //         // get next
+    //         ProcRegistryEntry &entry = it->second;
+    //         const String &name = it->first;
+    //         String value = (entry.procFn)(name);
+
+    //         if (!first)
+    //         {
+    //           msgBlock += ';';
+    //         }
+    //         appendNamedValue(msgBlock, name.c_str(), value.c_str());
+    //         ++it;
+    //         first = false;
+    //       }
+
+    //       int remain = msgBlock.length();
+    //       if (remain) {
+    //         const int writtenThisPass = min(remain, available);
+    //         int toWrite = writtenThisPass;
+    //         const char* inPtr = msgBlock.c_str();
+    //         while (toWrite > 0) {
+    //           *outPtr = (uint8_t)(*inPtr);
+    //           ++bytesFilled;
+    //           ++outPtr, ++inPtr;
+    //           --toWrite;
+    //         }
+    //         msgBlock.remove(0, writtenThisPass);
+    //         available -= writtenThisPass;
+    //       }
+    //     }
+    //     return bytesFilled;
+    //   }
+    // );
+
+    // response->addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    // response->addHeader("Pragma", "no-cache");
+    // response->addHeader("Expires", "-1");
+    // response->setCode(200);
+    // request->send(response);
+
+    // AsyncResponseStream *response = request->beginResponseStream("text/html");
+    // response->addHeader("Server", "PageHandler-header-field");
+
+    // String msgBlock;
+    // const int kYieldPer = 16;
+    // int numBeforeYield = kYieldPer;
+    // bool first = true;
+    // for (auto &&it : mProcessorRegistry)
+    // {
+    //   ProcRegistryEntry &entry = it.second;
+    //   const String &name = it.first;
+    //   String value = (entry.procFn)(name);
+
+    //   msgBlock.clear();
+    //   appendNamedValue(msgBlock, name.c_str(), value.c_str());
+
+    //   if (--numBeforeYield <= 0) {
+    //     yield();
+    //     numBeforeYield = kYieldPer;
+    //   }
+    //   if (!first)
+    //   {
+    //     response->print(';');
+    //   }
+    //   response->print(msgBlock);
+    //   first = false;
+    // }
+    // request->send(response);
   }
 
   // void PageHandler::handleConnectClient(AsyncEventSourceClient *client)
@@ -523,13 +617,6 @@ namespace stevesch
     size_t lenValue = strlen(value);
     size_t lenNameEncoded = encode_base64_length(lenName);
     size_t lenValueEncoded = encode_base64_length(lenValue);
-
-    const size_t origQueueLength = msgBlockOut.length();
-    if (origQueueLength > 0)
-    {
-      msgBlockOut += ';';
-    }
-
     encodeVar(msgBlockOut, name, lenName, lenNameEncoded, value, lenValue, lenValueEncoded);
   }
 

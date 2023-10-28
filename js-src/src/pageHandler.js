@@ -24,10 +24,14 @@
     const strKvPairs = msgBlock.split(';');
     strKvPairs.forEach((strKv) => {
       const kv = strKv.split(',');
-      const varName = atob(kv[0]);
-      const varValue = atob(kv[1]);
-      const msg = new MessageEvent(varName, { data: varValue });
-      varSource.dispatchEvent(msg);
+      try {
+        const varName = atob(kv[0]);
+        const varValue = atob(kv[1]);
+        const msg = new MessageEvent(varName, { data: varValue });
+        varSource.dispatchEvent(msg);
+      } catch (e) {
+        console.warn('Malformed message', kv[0], kv[1]);
+      }
     });
   }
 
