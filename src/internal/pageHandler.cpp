@@ -410,10 +410,10 @@ namespace stevesch
   void PageHandler::handleSet(AsyncWebServerRequest *request)
   {
     // Serial.println("handleSet...");
-    AsyncWebParameter *nameParam = request->getParam(String("name"));
+    const AsyncWebParameter *nameParam = request->getParam(String("name"));
     if (nameParam)
     {
-      AsyncWebParameter *valueParam = request->getParam(String("value"));
+      const AsyncWebParameter *valueParam = request->getParam(String("value"));
       if (valueParam)
       {
         const String &valueStr = valueParam->value();
