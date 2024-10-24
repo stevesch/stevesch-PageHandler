@@ -7,12 +7,14 @@
   // eslint-disable-next-line no-use-before-define
   document.addEventListener('DOMContentLoaded', initPageHandler, false);
 
-  let serverSource;
-  if (window.EventSource) {
-    serverSource = new EventSource('/events');
-  } else {
-    // old browser!  TODO: polyfill?
-  }
+  // let serverSource;
+  // if (window.EventSource) {
+  //   serverSource = new EventSource('/events');
+  // } else {
+  //   // old browser!  TODO: polyfill?
+  // }
+  // TODO: connectWebSocket
+
   const varSource = new EventTarget();
 
   let quietIntervals = 0;
@@ -35,9 +37,42 @@
     });
   }
 
-  function handleVarsMessage(e) {
-    processVarsMessage(e.data);
+  let socket;
+  const reconnectInterval = 3000; // Try to reconnect every 3 seconds
+
+  function connectWebSocket() {
+    const socketName = 'ws';
+    const gateway = `ws://${window.location.hostname}/${socketName}`;
+    console.log(`Opening socket at ${gateway}`);
+    socket = new WebSocket(gateway);
+
+    socket.onopen = () => {
+      console.log('WebSocket connection opened.');
+
+      // Example: Subscribe to sensor1 and sensor2 after connection
+      const subscribeMessage = JSON.stringify({ subscribe: ['sensor1', 'sensor2'] });
+      socket.send(subscribeMessage);
+    };
+
+    socket.onmessage = (event) => {
+      // console.log('Received message:', event.data);
+      processVarsMessage(event.data);
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed. Attempting to reconnect...');
+      setTimeout(connectWebSocket, reconnectInterval); // Try reconnecting
+    };
+
+    socket.onerror = (error) => {
+      console.log('WebSocket error:', error);
+      socket.close(); // Close the connection and trigger reconnect
+    };
   }
+
+  // function handleVarsMessage(e) {
+  //   processVarsMessage(e.data);
+  // }
 
   function evElement(source, name) {
     // replace innerHTML field of elements w/data-varinner attribute matching this event
@@ -396,14 +431,20 @@
       xhr.send();
     }
 
+    // function sendSetValue(name, value) {
+    //   const xhr = new XMLHttpRequest();
+    //   let s = '/api/set?name=';
+    //   s += escape(name);
+    //   s += '&value=';
+    //   s += escape(value);
+    //   xhr.open('GET', s, true);
+    //   xhr.send();
+    // }
     function sendSetValue(name, value) {
-      const xhr = new XMLHttpRequest();
-      let s = '/api/set?name=';
-      s += escape(name);
-      s += '&value=';
-      s += escape(value);
-      xhr.open('GET', s, true);
-      xhr.send();
+      if (socket) {
+        const msg = JSON.stringify({ set: { [name]: value } });
+        socket.send(msg);
+      }
     }
 
     function sendCheckboxState(/* e */) {
@@ -481,26 +522,30 @@
       refls.length = 0;
     }
 
-    if (serverSource) {
-      // serverSource.addEventListener('open', function(/* e */) {
-      //   quietIntervals = 0;
-      //   // console.log("Events Connected");
-      // }, false);
+    connectWebSocket();
 
-      // serverSource.addEventListener('error', function(e) {
-      //   quietIntervals = 0;
-      //   if (e.target.readyState != EventSource.OPEN) {
-      //     // console.log("Events Disconnected");
-      //   }
-      // }, false);
+    // if (serverSource) {
+    //   // serverSource.addEventListener('open', function(/* e */) {
+    //   //   quietIntervals = 0;
+    //   //   // console.log("Events Connected");
+    //   // }, false);
 
-      serverSource.addEventListener('_M_', handleVarsMessage);
+    //   // serverSource.addEventListener('error', function(e) {
+    //   //   quietIntervals = 0;
+    //   //   if (e.target.readyState != EventSource.OPEN) {
+    //   //     // console.log("Events Disconnected");
+    //   //   }
+    //   // }, false);
 
-      serverSource.addEventListener('message', (e) => {
-        quietIntervals = 0;
-        console.log('message', e.data);
-      }, false);
+    //   serverSource.addEventListener('_M_', handleVarsMessage);
 
+    //   serverSource.addEventListener('message', (e) => {
+    //     quietIntervals = 0;
+    //     console.log('message', e.data);
+    //   }, false);
+    // }
+
+    {
       const qstr = '[data-varinner]';
       const rlist = document.querySelectorAll(qstr);
       rlist.forEach((el) => {
@@ -603,8 +648,8 @@
           if (quietIntervals > 3) {
             quietIntervals = 0;
 
-            console.log('Reloading page...');
-            window.location.reload();
+            // console.log('Reloading page...');
+            // window.location.reload();
           }
         }
       }

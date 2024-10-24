@@ -62,7 +62,9 @@ namespace
 
 namespace stevesch
 {
-  PageHandler::PageHandler() : mEvents("/events"), mRestartTime(0), mEnableAsync(false)
+  PageHandler::PageHandler() :
+    // mEvents("/events"),
+    mRestartTime(0), mEnableAsync(false)
   {
     // when serving an HTML file (index.html), replace REFL_LIST with
     // an array of registered variable names:
@@ -70,6 +72,7 @@ namespace stevesch
 
     // hook for client connection starting:
     // mEvents.onConnect(std::bind(&PageHandler::handleConnectClient, this, _1));
+    mSocketHandler.handleIncomingValue = std::bind(&PageHandler::handleIncomingValue, this, _1, _2);
   }
 
   void PageHandler::setup()
@@ -118,11 +121,13 @@ namespace stevesch
     // server.on("/pageHandler.js", HTTP_GET, std::bind(&PageHandler::handleJs, this, _1));
     server.onNotFound(std::bind(&PageHandler::handlePageNotFound, this, _1));
 
-    server.addHandler(&mEvents);
+    // server.addHandler(&mEvents);
+    mSocketHandler.allocateWebSocket(&server);
   }
 
   void PageHandler::disconnect(AsyncWebServer &server)
   {
+    mSocketHandler.clearWebSocket();
   }
 
   void PageHandler::processReceivedQueue()
@@ -654,7 +659,8 @@ namespace stevesch
       // if not connected, we don't even try to actually send:
       if (WiFi.isConnected())
       {
-        mEvents.send(mSendQueue.c_str(), "_M_", millis());
+        // mEvents.send(mSendQueue.c_str(), "_M_", millis());
+        mSocketHandler.sendVarBlock(mSendQueue.c_str());
       }
       mSendQueue.clear();
     }
@@ -689,6 +695,18 @@ namespace stevesch
       // Serial.printf("Unregistered reflect: [%d]=[%d]\n", name.length(), value.length());
       // Serial.printf("Unregistered reflect: %s=%s\n", name.c_str(), value.c_str());
       queueNamedValue(name.c_str(), value.c_str());
+    }
+  }
+
+  void PageHandler::handleIncomingValue(const String& key, const String& value) {
+    if (mEnableAsync) {
+      receive(key, value);
+    }
+    else
+    {
+      xSemaphoreTake(sReceiveQueueKey, portMAX_DELAY);
+      mReceivedQueue.emplace_back(ReceivePair { key, value });
+      xSemaphoreGive(sReceiveQueueKey);
     }
   }
 

@@ -4,7 +4,10 @@
 #include <ESPAsyncWebServer.h>
 #include <functional>
 #include <map>
+#include <map>
 #include <deque>
+
+#include "./webSocketHandler.h"
 
 // An HTML page should reference this script and execute the following (or equivalent) script:
 // <script>
@@ -115,6 +118,9 @@ namespace stevesch
     // if running asynchronously, recevied events are processed immediately and the queue is not used.
     void processReceivedQueue();
 
+    // the following can queue up kv pairs for "receive":
+    void handleIncomingValue(const String& key, const String& value);
+
     struct ProcRegistryEntry
     {
       procFn_t procFn;
@@ -128,13 +134,20 @@ namespace stevesch
     };
     std::map<String, RecvRegistryEntry> mReceiverRegistry;
 
-    AsyncEventSource mEvents;
+    // AsyncEventSource mEvents;
+    WebSocketHandler mSocketHandler;
 
     struct ReceivePair {
       String name;
       String value;
     };
     std::deque<ReceivePair> mReceivedQueue;
+
+    struct ClientData {
+      std::set<String> mSubscribedVariables;
+    };
+
+    std::map<uint32_t, ClientData> mClients;
 
     // accumulated messages to be sent
     String mSendQueue;

@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "develop:lib": "babel --no-babelrc ./src --out-dir ./lib",
+    "develop:dist": "browserify ./lib/pageHandler.js > ../examples/minimal/data/pageHandler.js",
+    "develop": "npm run develop:lib && npm run develop:dist",
     "compile:lib": "babel ./src --out-dir ./lib",
     "compile:dist": "browserify ./lib/pageHandler.js | uglifyjs -c -m -o ../examples/minimal/data/pageHandler.js",
     "compile:dist-safer": "browserify ../examples/minimal/js-lib/pageHandler.js | uglifyjs -c -m --keep-fnames -o ../examples/minimal/data/pageHandler.js",
